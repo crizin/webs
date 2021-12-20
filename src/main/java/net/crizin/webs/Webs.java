@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import net.crizin.webs.exception.WebsException;
 import net.crizin.webs.request.DeleteRequestBuilder;
 import net.crizin.webs.request.GetRequestBuilder;
 import net.crizin.webs.request.HeadRequestBuilder;
@@ -23,12 +24,8 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Webs implements Closeable {
-
-	private static final Logger logger = LoggerFactory.getLogger(Webs.class);
 
 	private final String baseUrl;
 	private final CloseableHttpClient httpClient;
@@ -36,7 +33,7 @@ public class Webs implements Closeable {
 	private final RequestConfig requestConfig;
 	private final Browser simulateBrowser;
 
-	private Webs(WebsBuilder builder) {
+	private Webs(HttpBuilder builder) {
 		this.baseUrl = builder.baseUrl;
 		this.httpClient = (builder.client == null) ? HttpClients.custom()
 				.setUserAgent(builder.userAgent)
@@ -54,8 +51,8 @@ public class Webs implements Closeable {
 		this.simulateBrowser = builder.simulateBrowser;
 	}
 
-	public static WebsBuilder builder() {
-		return new WebsBuilder();
+	public static HttpBuilder builder() {
+		return new HttpBuilder();
 	}
 
 	public static Webs createSimple() {
@@ -133,11 +130,11 @@ public class Webs implements Closeable {
 		try {
 			httpClient.close();
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			throw new WebsException(e);
 		}
 	}
 
-	public static class WebsBuilder {
+	public static class HttpBuilder {
 
 		private String baseUrl = "";
 		private String userAgent;
@@ -147,37 +144,37 @@ public class Webs implements Closeable {
 		private RequestConfig requestConfig;
 		private Browser simulateBrowser;
 
-		public WebsBuilder baseUrl(String baseUrl) {
+		public HttpBuilder baseUrl(String baseUrl) {
 			this.baseUrl = baseUrl;
 			return this;
 		}
 
-		public WebsBuilder setConnectionTimeout(Duration connectionTimeout) {
+		public HttpBuilder setConnectionTimeout(Duration connectionTimeout) {
 			this.connectionTimeout = connectionTimeout;
 			return this;
 		}
 
-		public WebsBuilder setReadTimeout(Duration readTimeout) {
+		public HttpBuilder setReadTimeout(Duration readTimeout) {
 			this.readTimeout = readTimeout;
 			return this;
 		}
 
-		public WebsBuilder setUserAgent(String userAgentString) {
+		public HttpBuilder setUserAgent(String userAgentString) {
 			this.userAgent = userAgentString;
 			return this;
 		}
 
-		public WebsBuilder setClient(CloseableHttpClient client) {
+		public HttpBuilder setClient(CloseableHttpClient client) {
 			this.client = client;
 			return this;
 		}
 
-		public WebsBuilder setRequestConfig(RequestConfig requestConfig) {
+		public HttpBuilder setRequestConfig(RequestConfig requestConfig) {
 			this.requestConfig = requestConfig;
 			return this;
 		}
 
-		public WebsBuilder simulateBrowser(Browser browser) {
+		public HttpBuilder simulateBrowser(Browser browser) {
 			this.simulateBrowser = browser;
 			return this;
 		}

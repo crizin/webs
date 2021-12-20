@@ -1,11 +1,7 @@
 package net.crizin.webs;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import net.crizin.webs.exception.WebsException;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 
@@ -53,13 +49,13 @@ public class FormBuilder {
 			if (dontEncodeKey) {
 				sb.append(names.get(i));
 			} else {
-				sb.append(encodeUrl(names.get(i)));
+				sb.append(WebsUtil.encodeUrl(names.get(i)));
 			}
 
 			sb.append('=');
 
 			if (value != null) {
-				sb.append(encodeUrl(String.valueOf(value)));
+				sb.append(WebsUtil.encodeUrl(String.valueOf(value)));
 			}
 		}
 
@@ -80,13 +76,5 @@ public class FormBuilder {
 		}
 
 		return parameters;
-	}
-
-	private String encodeUrl(String value) {
-		try {
-			return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
-		} catch (UnsupportedEncodingException e) {
-			throw new WebsException(e);
-		}
 	}
 }
