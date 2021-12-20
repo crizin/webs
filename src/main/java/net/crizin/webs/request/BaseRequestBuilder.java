@@ -1,5 +1,7 @@
 package net.crizin.webs.request;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -184,5 +186,30 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 				}
 			}
 		}
+	}
+
+	public String asString() {
+		return fetch().asString();
+	}
+
+
+	public <R> R as(Class<R> type) {
+		return fetch().as(type);
+	}
+
+	public <R> R as(TypeReference<R> type) {
+		return fetch().as(type);
+	}
+
+	public JsonNode asJson() {
+		return fetch().asJson();
+	}
+
+	public Map<String, Object> asMap() {
+		return fetch().asMap();
+	}
+
+	public List<Map<String, Object>> asMapList() {
+		return fetch().asMapList();
 	}
 }

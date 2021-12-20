@@ -11,8 +11,9 @@ class WebsGetTest extends AbstractTest {
 
 	@Test
 	void testGetString() {
-		assertThat(webs.get("/get").fetch().asString())
-				.hasSizeGreaterThan(100);
+		String response = webs.get("/get").asString();
+
+		assertThat(response).hasSizeGreaterThan(100);
 	}
 
 	@Test
@@ -27,7 +28,6 @@ class WebsGetTest extends AbstractTest {
 				.queryParam("c", 3)
 				.queryParam("c", 4)
 				.queryParam("c", 3)
-				.fetch()
 				.as(Data.class);
 
 		assertThat(data).extracting(Data::getArgs).extracting("a").isEqualTo("1");
@@ -40,7 +40,6 @@ class WebsGetTest extends AbstractTest {
 	void testGetWithQueryParametersOmitting() {
 		Data data = webs.get("/get")
 				.queryParam("a", null)
-				.fetch()
 				.as(Data.class);
 
 		assertThat(data.getArgs()).contains(entry("a", ""));
@@ -48,7 +47,6 @@ class WebsGetTest extends AbstractTest {
 		data = webs.get("/get")
 				.omitNullQueryParamValue()
 				.queryParam("a", null)
-				.fetch()
 				.as(Data.class);
 
 		assertThat(data.getArgs()).doesNotContainKeys("a");
@@ -58,7 +56,6 @@ class WebsGetTest extends AbstractTest {
 	void testGetWithQueryString() {
 		Data data = webs.get("/get")
 				.queryParamString("a=1&b=2&c=3&c=4&" + WebsUtil.encodeUrl(complexString) + "=" + WebsUtil.encodeUrl(complexString))
-				.fetch()
 				.as(Data.class);
 
 		assertThat(data).extracting(Data::getArgs).extracting("a").isEqualTo("1");
@@ -73,7 +70,6 @@ class WebsGetTest extends AbstractTest {
 				.bind("a", 1)
 				.bind("b", 2)
 				.queryParam("c", 3)
-				.fetch()
 				.as(Data.class);
 
 		assertThat(data).extracting(Data::getArgs)
