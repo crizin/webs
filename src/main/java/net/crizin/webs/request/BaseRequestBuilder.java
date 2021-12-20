@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import net.crizin.webs.FormBuilder;
-import net.crizin.webs.Webs;
 import net.crizin.webs.Response;
+import net.crizin.webs.Webs;
 import net.crizin.webs.exception.WebsRequestException;
 import net.crizin.webs.exception.WebsResponseException;
 import org.apache.commons.codec.binary.Base64;
@@ -29,7 +29,7 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 	protected final List<Object> queryParamValues = new ArrayList<>();
 	protected final List<String> headerNames = new ArrayList<>();
 	protected final List<Object> headerValues = new ArrayList<>();
-	protected final FormBuilder formBuilder = Webs.formBuilder();
+	protected final FormBuilder formBuilder = new FormBuilder();
 	protected String url;
 	protected String payload;
 	protected String queryString;

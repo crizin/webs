@@ -11,7 +11,7 @@ class WebsPostTest extends AbstractTest {
 
 	@Test
 	void testPostWithoutPayload() {
-		Data data = http.post("/post").fetch().as(Data.class);
+		Data data = webs.post("/post").fetch().as(Data.class);
 		assertThat(data).extracting(Data::getForm).asInstanceOf(InstanceOfAssertFactories.MAP).isEmpty();
 	}
 
@@ -21,7 +21,7 @@ class WebsPostTest extends AbstractTest {
 		params.put("a", "1");
 		params.put("b", "2");
 
-		Data data = http.post("/post")
+		Data data = webs.post("/post")
 				.queryParams(params)
 				.queryParam("c", 3)
 				.queryParam("c", 3)
@@ -46,14 +46,14 @@ class WebsPostTest extends AbstractTest {
 
 	@Test
 	void testPostWithCustomPayload() {
-		String payload = Webs.formBuilder()
+		String payload = new FormBuilder()
 				.omitNullValue()
 				.add("f1", 1)
 				.add("f2", 2)
 				.add(complexString, complexString)
 				.buildAsString();
 
-		Data data = http.post("/post")
+		Data data = webs.post("/post")
 				.payload(payload)
 				.fetch()
 				.as(Data.class);
@@ -66,7 +66,7 @@ class WebsPostTest extends AbstractTest {
 				.hasFieldOrPropertyWithValue("f2", "2")
 				.hasFieldOrPropertyWithValue(complexString, complexString);
 
-		data = http.post("/post")
+		data = webs.post("/post")
 				.jsonPayload(data)
 				.fetch()
 				.as(Data.class);
@@ -85,7 +85,7 @@ class WebsPostTest extends AbstractTest {
 
 	@Test
 	void testPostWihtOmitNullFormValue() {
-		Data data = http.post("/post")
+		Data data = webs.post("/post")
 				.formValue("a", 1)
 				.formValue("b", null)
 				.fetch()
@@ -95,7 +95,7 @@ class WebsPostTest extends AbstractTest {
 				.hasFieldOrPropertyWithValue("a", "1")
 				.hasFieldOrPropertyWithValue("b", "");
 
-		data = http.post("/post")
+		data = webs.post("/post")
 				.omitNullValue()
 				.formValue("a", 1)
 				.formValue("b", null)

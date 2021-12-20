@@ -59,10 +59,6 @@ public class Webs implements Closeable {
 		return Webs.builder().build();
 	}
 
-	public static FormBuilder formBuilder() {
-		return new FormBuilder();
-	}
-
 	public OptionsRequestBuilder options(String url) {
 		return new OptionsRequestBuilder(this, url);
 	}

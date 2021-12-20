@@ -18,28 +18,28 @@ class WebsTest extends AbstractTest {
 
 	@Test
 	void testGetJson() {
-		Data data = http.get("/get").fetch().as(Data.class);
+		Data data = webs.get("/get").fetch().as(Data.class);
 		assertThat(data).extracting(Data::getUrl).isEqualTo("https://httpbin.org/get");
 
-		data = http.get("/get").fetch().as(new TypeReference<Data>() {});
+		data = webs.get("/get").fetch().as(new TypeReference<Data>() {});
 		assertThat(data).extracting(Data::getUrl).isEqualTo("https://httpbin.org/get");
 	}
 
 	@Test
 	void testParseTwice() {
-		Response response = http.get("/get").fetch();
+		Response response = webs.get("/get").fetch();
 		assertDoesNotThrow(response::asString);
 		assertThatThrownBy(response::asString).isInstanceOf(WebsResponseException.class);
 	}
 
 	@Test
 	void testFormBuilder() {
-		FormBuilder builder = Webs.formBuilder()
+		FormBuilder builder = new FormBuilder()
 				.add("a[]", 1)
 				.add("a[]", 2);
 		assertThat(builder.buildAsString()).isEqualTo("a%5B%5D=1&a%5B%5D=2");
 
-		builder = Webs.formBuilder()
+		builder = new FormBuilder()
 				.dontEncodeKey()
 				.add("a[]", 1)
 				.add("a[]", 2);
@@ -76,7 +76,7 @@ class WebsTest extends AbstractTest {
 
 	@Test
 	void testRequestHeader() {
-		Data data = http.get("/get")
+		Data data = webs.get("/get")
 				.header("a", 1)
 				.header("b", 2)
 				.header("b", 3)
@@ -90,7 +90,7 @@ class WebsTest extends AbstractTest {
 
 	@Test
 	void testResponseHeader() {
-		Response response = http.get("/response-headers")
+		Response response = webs.get("/response-headers")
 				.queryParam("a", 1)
 				.queryParam("b", 2)
 				.queryParam("b", 3)
@@ -139,24 +139,24 @@ class WebsTest extends AbstractTest {
 				.fetch();
 
 		assertThat(http.getCookieValue("a")).hasValue("2");
-		assertThat(super.http.getCookieValue("a")).isEmpty();
+		assertThat(super.webs.getCookieValue("a")).isEmpty();
 	}
 
 	@Test
 	void testOptions() {
-		Response response = http.options("/delete").fetch();
+		Response response = webs.options("/delete").fetch();
 		assertThat(response.getHeader("Allow")).isPresent().asString().contains("OPTIONS").contains("DELETE");
 	}
 
 	@Test
 	void testHead() {
-		Response response = http.head("/get").fetch();
+		Response response = webs.head("/get").fetch();
 		assertThat(response.statusCode()).isEqualTo(200);
 	}
 
 	@Test
 	void testPut() {
-		Data data = http.put("/put")
+		Data data = webs.put("/put")
 				.formValue("a", 1)
 				.fetch()
 				.as(Data.class);
@@ -166,7 +166,7 @@ class WebsTest extends AbstractTest {
 
 	@Test
 	void testDelete() {
-		Data data = http.delete("/delete")
+		Data data = webs.delete("/delete")
 				.queryParam("a", 1)
 				.fetch()
 				.as(Data.class);
@@ -176,7 +176,7 @@ class WebsTest extends AbstractTest {
 
 	@Test
 	void testPatch() {
-		Data data = http.patch("/patch")
+		Data data = webs.patch("/patch")
 				.formValue("a", 1)
 				.fetch()
 				.as(Data.class);
@@ -186,12 +186,12 @@ class WebsTest extends AbstractTest {
 
 	@Test
 	void testAuth() {
-		Response response = http.get("/basic-auth/user/pass")
+		Response response = webs.get("/basic-auth/user/pass")
 				.fetch();
 
 		assertThat(response).extracting(Response::statusCode).isEqualTo(401);
 
-		Map<String, Object> map = http.get("/basic-auth/user/pass")
+		Map<String, Object> map = webs.get("/basic-auth/user/pass")
 				.basicAuth("user", "pass")
 				.fetch()
 				.asMap();

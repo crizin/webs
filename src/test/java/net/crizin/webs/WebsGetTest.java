@@ -11,7 +11,7 @@ class WebsGetTest extends AbstractTest {
 
 	@Test
 	void testGetString() {
-		assertThat(http.get("/get").fetch().asString())
+		assertThat(webs.get("/get").fetch().asString())
 				.hasSizeGreaterThan(100);
 	}
 
@@ -22,7 +22,7 @@ class WebsGetTest extends AbstractTest {
 		params.put("b", "2");
 		params.put(complexString, complexString);
 
-		Data data = http.get("/get")
+		Data data = webs.get("/get")
 				.queryParams(params)
 				.queryParam("c", 3)
 				.queryParam("c", 4)
@@ -38,14 +38,14 @@ class WebsGetTest extends AbstractTest {
 
 	@Test
 	void testGetWithQueryParametersOmitting() {
-		Data data = http.get("/get")
+		Data data = webs.get("/get")
 				.queryParam("a", null)
 				.fetch()
 				.as(Data.class);
 
 		assertThat(data.getArgs()).contains(entry("a", ""));
 
-		data = http.get("/get")
+		data = webs.get("/get")
 				.omitNullQueryParamValue()
 				.queryParam("a", null)
 				.fetch()
@@ -56,7 +56,7 @@ class WebsGetTest extends AbstractTest {
 
 	@Test
 	void testGetWithQueryString() {
-		Data data = http.get("/get")
+		Data data = webs.get("/get")
 				.queryParamString("a=1&b=2&c=3&c=4&" + WebsUtil.encodeUrl(complexString) + "=" + WebsUtil.encodeUrl(complexString))
 				.fetch()
 				.as(Data.class);
@@ -69,7 +69,7 @@ class WebsGetTest extends AbstractTest {
 
 	@Test
 	void testGetWithTemplating() {
-		Data data = http.get("/get?a={a}&b={b}")
+		Data data = webs.get("/get?a={a}&b={b}")
 				.bind("a", 1)
 				.bind("b", 2)
 				.queryParam("c", 3)

@@ -6,12 +6,12 @@ import org.junit.jupiter.api.BeforeEach;
 
 abstract class AbstractTest {
 
-	protected Webs http;
+	protected Webs webs;
 	protected final String complexString = "<!--'\"&lt;\\n+#]]>흫흣</script>";
 
 	@BeforeEach
 	void before() {
-		http = Webs.builder()
+		webs = Webs.builder()
 				.baseUrl("https://httpbin.org")
 				.setConnectionTimeout(Duration.ofSeconds(1))
 				.setReadTimeout(Duration.ofSeconds(30))
@@ -20,6 +20,6 @@ abstract class AbstractTest {
 
 	@AfterEach
 	void close() {
-		http.close();
+		webs.close();
 	}
 }
