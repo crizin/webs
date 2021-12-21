@@ -1,4 +1,4 @@
-package net.crizin.webs;
+package com.github.crizin.webs;
 
 import java.util.Map;
 

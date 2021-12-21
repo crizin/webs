@@ -1,4 +1,4 @@
-package net.crizin.webs;
+package com.github.crizin.webs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

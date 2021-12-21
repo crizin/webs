@@ -1,4 +1,4 @@
-package net.crizin.webs;
+package com.github.crizin.webs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.crizin.webs.exception.WebsResponseException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.util.Map;
-import net.crizin.webs.exception.WebsResponseException;
 import org.apache.hc.client5.http.ConnectTimeoutException;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;

@@ -1,9 +1,9 @@
-package net.crizin.webs.request;
+package com.github.crizin.webs.request;
 
-import net.crizin.webs.Webs;
-import net.crizin.webs.Response;
-import net.crizin.webs.exception.WebsRequestException;
-import net.crizin.webs.WebsUtil;
+import com.github.crizin.webs.Response;
+import com.github.crizin.webs.Webs;
+import com.github.crizin.webs.exception.WebsRequestException;
+import com.github.crizin.webs.WebsUtil;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ContentType;
 

@@ -1,7 +1,10 @@
-package net.crizin.webs.request;
+package com.github.crizin.webs.request;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.crizin.webs.FormBuilder;
+import com.github.crizin.webs.Response;
+import com.github.crizin.webs.exception.WebsResponseException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,11 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import net.crizin.webs.FormBuilder;
-import net.crizin.webs.Response;
-import net.crizin.webs.Webs;
-import net.crizin.webs.exception.WebsRequestException;
-import net.crizin.webs.exception.WebsResponseException;
+import com.github.crizin.webs.Webs;
+import com.github.crizin.webs.exception.WebsRequestException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;

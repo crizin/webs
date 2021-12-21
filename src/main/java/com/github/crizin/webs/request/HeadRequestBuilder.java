@@ -1,7 +1,7 @@
-package net.crizin.webs.request;
+package com.github.crizin.webs.request;
 
-import net.crizin.webs.Webs;
-import net.crizin.webs.Response;
+import com.github.crizin.webs.Response;
+import com.github.crizin.webs.Webs;
 import org.apache.hc.client5.http.classic.methods.HttpHead;
 
 public class HeadRequestBuilder extends BaseRequestBuilder<HeadRequestBuilder> {

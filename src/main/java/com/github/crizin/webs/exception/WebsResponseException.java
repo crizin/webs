@@ -1,4 +1,4 @@
-package net.crizin.webs.exception;
+package com.github.crizin.webs.exception;
 
 public class WebsResponseException extends WebsException {
 
