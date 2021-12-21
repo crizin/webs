@@ -2,8 +2,8 @@ package com.github.crizin.webs.request;
 
 import com.github.crizin.webs.Response;
 import com.github.crizin.webs.Webs;
-import com.github.crizin.webs.exception.WebsRequestException;
 import com.github.crizin.webs.WebsUtil;
+import com.github.crizin.webs.exception.WebsRequestException;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ContentType;
 
@@ -14,7 +14,7 @@ public class PostRequestBuilder extends BaseRequestBuilder<PostRequestBuilder> {
 	}
 
 	public PostRequestBuilder omitNullValue() {
-		this.formBuilder.omitNullValue();
+		this.paramsBuilder.omitNullValue();
 		return this;
 	}
 
@@ -22,12 +22,12 @@ public class PostRequestBuilder extends BaseRequestBuilder<PostRequestBuilder> {
 		if (payload != null) {
 			throw new WebsRequestException("Payload already set");
 		}
-		formBuilder.add(name, value);
+		paramsBuilder.add(name, value);
 		return this;
 	}
 
 	public PostRequestBuilder payload(String paramString) {
-		if (formBuilder.hasValue()) {
+		if (paramsBuilder.hasValue()) {
 			throw new WebsRequestException("Request parameter already set");
 		}
 		this.payload = paramString;
@@ -35,7 +35,7 @@ public class PostRequestBuilder extends BaseRequestBuilder<PostRequestBuilder> {
 	}
 
 	public PostRequestBuilder jsonPayload(Object object) {
-		if (formBuilder.hasValue()) {
+		if (paramsBuilder.hasValue()) {
 			throw new WebsRequestException("Request parameter already set");
 		}
 		this.payload = WebsUtil.toJson(object);

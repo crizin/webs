@@ -2,20 +2,25 @@ package com.github.crizin.webs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.crizin.webs.exception.WebsException;
+import com.github.crizin.webs.exception.WebsResponseException;
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import com.github.crizin.webs.exception.WebsResponseException;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class Response {
+public class Response implements Closeable {
 
+	private static final Logger logger = LoggerFactory.getLogger(Response.class);
 	private final CloseableHttpResponse httpResponse;
 
 	public Response(CloseableHttpResponse httpResponse) {
@@ -42,7 +47,8 @@ public class Response {
 		} finally {
 			try {
 				httpResponse.close();
-			} catch (IOException ignore) {
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -53,7 +59,8 @@ public class Response {
 		} finally {
 			try {
 				httpResponse.close();
-			} catch (IOException ignore) {
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -64,7 +71,8 @@ public class Response {
 		} finally {
 			try {
 				httpResponse.close();
-			} catch (IOException ignore) {
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -75,10 +83,10 @@ public class Response {
 		} finally {
 			try {
 				httpResponse.close();
-			} catch (IOException ignore) {
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
 			}
 		}
-
 	}
 
 	public Map<String, Object> asMap() {
@@ -87,5 +95,14 @@ public class Response {
 
 	public List<Map<String, Object>> asMapList() {
 		return as(new TypeReference<List<Map<String, Object>>>() {});
+	}
+
+	@Override
+	public void close() {
+		try {
+			httpResponse.close();
+		} catch (IOException e) {
+			throw new WebsException(e);
+		}
 	}
 }

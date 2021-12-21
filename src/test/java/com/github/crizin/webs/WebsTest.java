@@ -33,13 +33,13 @@ class WebsTest extends AbstractTest {
 	}
 
 	@Test
-	void testFormBuilder() {
-		FormBuilder builder = new FormBuilder()
+	void testParamsBuilder() {
+		ParamsBuilder builder = new ParamsBuilder()
 				.add("a[]", 1)
 				.add("a[]", 2);
 		assertThat(builder.buildAsString()).isEqualTo("a%5B%5D=1&a%5B%5D=2");
 
-		builder = new FormBuilder()
+		builder = new ParamsBuilder()
 				.dontEncodeKey()
 				.add("a[]", 1)
 				.add("a[]", 2);
@@ -86,6 +86,10 @@ class WebsTest extends AbstractTest {
 		assertThat(data).extracting(Data::getHeaders)
 				.hasFieldOrPropertyWithValue("A", "1")
 				.hasFieldOrPropertyWithValue("B", "2,3");
+
+		Response response = webs.get("/get").fetch();
+		assertThat(response.getHeader("Access-Control-Allow-Origin")).hasValue("*");
+		assertThat(response.getHeader("access-control-allow-origin")).hasValue("*");
 	}
 
 	@Test

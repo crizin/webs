@@ -46,7 +46,7 @@ class WebsPostTest extends AbstractTest {
 
 	@Test
 	void testPostWithCustomPayload() {
-		String payload = new FormBuilder()
+		String payload = new ParamsBuilder()
 				.omitNullValue()
 				.add("f1", 1)
 				.add("f2", 2)

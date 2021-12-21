@@ -1,8 +1,11 @@
 package com.github.crizin.webs;
 
+import com.github.crizin.webs.exception.WebsException;
 import com.github.crizin.webs.request.DeleteRequestBuilder;
 import com.github.crizin.webs.request.GetRequestBuilder;
+import com.github.crizin.webs.request.HeadRequestBuilder;
 import com.github.crizin.webs.request.OptionsRequestBuilder;
+import com.github.crizin.webs.request.PatchRequestBuilder;
 import com.github.crizin.webs.request.PostRequestBuilder;
 import com.github.crizin.webs.request.PutRequestBuilder;
 import java.io.Closeable;
@@ -12,9 +15,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import com.github.crizin.webs.exception.WebsException;
-import com.github.crizin.webs.request.HeadRequestBuilder;
-import com.github.crizin.webs.request.PatchRequestBuilder;
 import org.apache.hc.client5.http.auth.StandardAuthScheme;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;

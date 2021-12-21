@@ -32,6 +32,12 @@ public enum Browser {
 			{"Sec-Fetch-Dest", "document"},
 			{"Accept-Language", "ko-KR,ko;q=0.9,en;q=0.8,en-US;q=0.7"}
 	}),
+	SAFARI(new String[][]{
+			{"Cache-Control", "max-age=0"},
+			{"User-Agent", "Mozilla/5.0 (MacBook Air; M1 Mac OS X 11_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/604.1"},
+			{"Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+			{"Accept-Language", "ko-KR,ko;q=0.9"}
+	}),
 	EDGE(new String[][]{
 			{"Cache-Control", "max-age=0"},
 			{"Sec-Ch-Ua", "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"96\", \"Microsoft Edge\";v=\"96\""},

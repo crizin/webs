@@ -2,8 +2,10 @@ package com.github.crizin.webs.request;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.crizin.webs.FormBuilder;
+import com.github.crizin.webs.ParamsBuilder;
 import com.github.crizin.webs.Response;
+import com.github.crizin.webs.Webs;
+import com.github.crizin.webs.exception.WebsRequestException;
 import com.github.crizin.webs.exception.WebsResponseException;
 import java.io.IOException;
 import java.net.URI;
@@ -13,8 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import com.github.crizin.webs.Webs;
-import com.github.crizin.webs.exception.WebsRequestException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
@@ -31,7 +31,7 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 	protected final List<Object> queryParamValues = new ArrayList<>();
 	protected final List<String> headerNames = new ArrayList<>();
 	protected final List<Object> headerValues = new ArrayList<>();
-	protected final FormBuilder formBuilder = new FormBuilder();
+	protected final ParamsBuilder paramsBuilder = new ParamsBuilder();
 	protected String url;
 	protected String payload;
 	protected String queryString;
@@ -162,8 +162,8 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 	protected void setPayload(HttpUriRequestBase request) {
 		if (payload != null) {
 			request.setEntity(new StringEntity(payload, contentType));
-		} else if (formBuilder.hasValue()) {
-			request.setEntity(new UrlEncodedFormEntity(formBuilder.buildAsNameValuePairs(), StandardCharsets.UTF_8));
+		} else if (paramsBuilder.hasValue()) {
+			request.setEntity(new UrlEncodedFormEntity(paramsBuilder.buildAsNameValuePairs(), StandardCharsets.UTF_8));
 		}
 	}
 
@@ -178,9 +178,9 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 					request.setHeader(name, value);
 				}
 			});
-			if (!request.containsHeader("Referer")) {
+			if (!request.containsHeader(HttpHeaders.REFERER)) {
 				try {
-					request.setHeader("Referer", request.getUri().toString());
+					request.setHeader(HttpHeaders.REFERER, request.getUri().toString());
 				} catch (URISyntaxException e) {
 					throw new WebsRequestException(e);
 				}
@@ -191,7 +191,6 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 	public String asString() {
 		return fetch().asString();
 	}
-
 
 	public <R> R as(Class<R> type) {
 		return fetch().as(type);

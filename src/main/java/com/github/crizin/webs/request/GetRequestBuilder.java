@@ -1,7 +1,7 @@
 package com.github.crizin.webs.request;
 
-import com.github.crizin.webs.Webs;
 import com.github.crizin.webs.Response;
+import com.github.crizin.webs.Webs;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 
 public class GetRequestBuilder extends BaseRequestBuilder<GetRequestBuilder> {
