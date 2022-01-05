@@ -32,6 +32,7 @@ public class Webs implements Closeable {
 	private final HttpClientContext httpClientContext;
 	private final RequestConfig requestConfig;
 	private final Browser simulateBrowser;
+	private final boolean disableKeepAlive;
 
 	private Webs(HttpBuilder builder) {
 		this.baseUrl = builder.baseUrl;
@@ -49,6 +50,7 @@ public class Webs implements Closeable {
 				.setResponseTimeout(Timeout.ofNanoseconds(builder.readTimeout.toNanos()))
 				.build() : builder.requestConfig;
 		this.simulateBrowser = builder.simulateBrowser;
+		this.disableKeepAlive = builder.disableKeepAlive;
 	}
 
 	public static HttpBuilder builder() {
@@ -121,6 +123,10 @@ public class Webs implements Closeable {
 		return simulateBrowser;
 	}
 
+	public boolean isDisableKeepAlive() {
+		return disableKeepAlive;
+	}
+
 	@Override
 	public void close() {
 		try {
@@ -139,6 +145,7 @@ public class Webs implements Closeable {
 		private CloseableHttpClient client;
 		private RequestConfig requestConfig;
 		private Browser simulateBrowser;
+		private boolean disableKeepAlive;
 
 		public HttpBuilder baseUrl(String baseUrl) {
 			this.baseUrl = baseUrl;
@@ -172,6 +179,11 @@ public class Webs implements Closeable {
 
 		public HttpBuilder simulateBrowser(Browser browser) {
 			this.simulateBrowser = browser;
+			return this;
+		}
+
+		public HttpBuilder disableKeepAlive() {
+			this.disableKeepAlive = true;
 			return this;
 		}
 

@@ -186,6 +186,10 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 				}
 			}
 		}
+
+		if (webs.isDisableKeepAlive()) {
+			request.setHeader("Connection", "close");
+		}
 	}
 
 	public String asString() {
