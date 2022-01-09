@@ -35,10 +35,14 @@ public class PostRequestBuilder extends BaseRequestBuilder<PostRequestBuilder> {
 	}
 
 	public PostRequestBuilder jsonPayload(Object object) {
+		return jsonPayload(jsonPayload(WebsUtil.toJson(object)));
+	}
+
+	public PostRequestBuilder jsonPayload(String payload) {
 		if (paramsBuilder.hasValue()) {
 			throw new WebsRequestException("Request parameter already set");
 		}
-		this.payload = WebsUtil.toJson(object);
+		this.payload = payload;
 		this.contentType = ContentType.APPLICATION_JSON;
 		return this;
 	}
