@@ -64,7 +64,7 @@ public class Webs implements Closeable {
 			HttpClientBuilder httpClientsBuilder = HttpClients.custom()
 					.setConnectionManager(connectionManager)
 					.setUserAgent(builder.userAgent);
-			if (builder().disableContentCompression) {
+			if (builder.disableContentCompression) {
 				httpClientsBuilder.disableContentCompression();
 			}
 			this.httpClient = httpClientsBuilder.build();
