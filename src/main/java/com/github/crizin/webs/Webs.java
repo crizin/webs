@@ -10,6 +10,9 @@ import com.github.crizin.webs.request.PostRequestBuilder;
 import com.github.crizin.webs.request.PutRequestBuilder;
 import java.io.Closeable;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +25,13 @@ import org.apache.hc.client5.http.cookie.Cookie;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
+import org.apache.hc.client5.http.ssl.TrustAllStrategy;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.Timeout;
 
 public class Webs implements Closeable {
@@ -35,8 +44,23 @@ public class Webs implements Closeable {
 	private final boolean disableKeepAlive;
 
 	private Webs(HttpBuilder builder) {
+		PoolingHttpClientConnectionManager connectionManager;
+
+		try {
+			connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+					.setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
+							.setSslContext(SSLContextBuilder.create().loadTrustMaterial(TrustAllStrategy.INSTANCE).build())
+							.setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+							.build()
+					)
+					.build();
+		} catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+			throw new WebsException(e);
+		}
+
 		this.baseUrl = builder.baseUrl;
 		this.httpClient = (builder.client == null) ? HttpClients.custom()
+				.setConnectionManager(connectionManager)
 				.setUserAgent(builder.userAgent)
 				.build() : builder.client;
 		this.httpClientContext = HttpClientContext.create();

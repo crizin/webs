@@ -233,4 +233,13 @@ class WebsTest extends AbstractTest {
 
 		assertThat(response).contains("<title>'윤석열 인터뷰'");
 	}
+
+	@Test
+	void testAbnormalSsl() {
+		Response response = Webs.createSimple()
+				.get("https://intdev.yu.ac.kr/intdev/index.do")
+				.fetch();
+
+		assertDoesNotThrow(response::asString);
+	}
 }
