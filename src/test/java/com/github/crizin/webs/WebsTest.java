@@ -216,4 +216,13 @@ class WebsTest extends AbstractTest {
 				.extracting("User-Agent")
 				.isEqualTo("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36");
 	}
+
+	@Test
+	void testMissingCharset() {
+		String response = Webs.createSimple()
+				.get("https://www.bobaedream.co.kr/")
+				.asString();
+
+		assertThat(response).contains("<title>보배드림");
+	}
 }
