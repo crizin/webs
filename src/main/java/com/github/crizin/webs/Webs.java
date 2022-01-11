@@ -24,6 +24,7 @@ import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
@@ -59,10 +60,17 @@ public class Webs implements Closeable {
 		}
 
 		this.baseUrl = builder.baseUrl;
-		this.httpClient = (builder.client == null) ? HttpClients.custom()
-				.setConnectionManager(connectionManager)
-				.setUserAgent(builder.userAgent)
-				.build() : builder.client;
+		if (builder.client == null) {
+			HttpClientBuilder httpClientsBuilder = HttpClients.custom()
+					.setConnectionManager(connectionManager)
+					.setUserAgent(builder.userAgent);
+			if (builder().disableContentCompression) {
+				httpClientsBuilder.disableContentCompression();
+			}
+			this.httpClient = httpClientsBuilder.build();
+		} else {
+			this.httpClient = builder.client;
+		}
 		this.httpClientContext = HttpClientContext.create();
 		this.httpClientContext.setAttribute(HttpClientContext.COOKIE_STORE, new BasicCookieStore());
 		this.requestConfig = (builder.requestConfig == null) ? RequestConfig.custom()
@@ -170,6 +178,7 @@ public class Webs implements Closeable {
 		private RequestConfig requestConfig;
 		private Browser simulateBrowser;
 		private boolean disableKeepAlive;
+		private boolean disableContentCompression;
 
 		public HttpBuilder baseUrl(String baseUrl) {
 			this.baseUrl = baseUrl;
@@ -208,6 +217,11 @@ public class Webs implements Closeable {
 
 		public HttpBuilder disableKeepAlive() {
 			this.disableKeepAlive = true;
+			return this;
+		}
+
+		public HttpBuilder disableContentCompression() {
+			this.disableContentCompression = true;
 			return this;
 		}
 

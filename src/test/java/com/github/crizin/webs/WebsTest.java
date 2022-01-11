@@ -242,4 +242,15 @@ class WebsTest extends AbstractTest {
 
 		assertDoesNotThrow(response::asString);
 	}
+
+	@Test
+	void testDisableGzip() {
+		Response response = Webs.builder()
+				.disableContentCompression()
+				.build()
+				.get("https://www.ddanzi.com/free/718000314")
+				.fetch();
+
+		assertDoesNotThrow(response::asString);
+	}
 }
