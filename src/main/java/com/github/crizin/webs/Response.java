@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class Response implements Closeable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Response.class);
-	private static final Pattern charsetPattern = Pattern.compile("charset=([\\w-]+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern charsetPattern = Pattern.compile("charset\\s*=\\s*([\\w-]+)", Pattern.CASE_INSENSITIVE);
 
 	private final CloseableHttpResponse httpResponse;
 
@@ -47,8 +46,9 @@ public class Response implements Closeable {
 
 	public String asString() {
 		try {
-			return EntityUtils.toString(httpResponse.getEntity(), getCharset(httpResponse));
-		} catch (IOException | ParseException e) {
+			byte[] bytes = EntityUtils.toByteArray(httpResponse.getEntity());
+			return new String(bytes, getCharset(httpResponse, bytes));
+		} catch (IOException e) {
 			throw new WebsResponseException(e);
 		} finally {
 			try {
@@ -112,19 +112,32 @@ public class Response implements Closeable {
 		}
 	}
 
-	private Charset getCharset(CloseableHttpResponse httpResponse) {
-		return Optional.ofNullable(httpResponse.getFirstHeader("Content-Type"))
+	private Charset getCharset(CloseableHttpResponse httpResponse, byte[] bytes) {
+		Charset charset = Optional.ofNullable(httpResponse.getFirstHeader("Content-Type"))
 				.map(NameValuePair::getValue)
 				.map(charsetPattern::matcher)
 				.filter(Matcher::find)
 				.map(matcher -> matcher.group(1))
-				.map(charset -> {
+				.map(name -> {
 					try {
-						return Charset.forName(charset);
+						return Charset.forName(name);
 					} catch (Exception e) {
 						return null;
 					}
 				})
-				.orElse(StandardCharsets.UTF_8);
+				.orElse(null);
+
+		if (charset == null) {
+			Matcher matcher = charsetPattern.matcher(new String(bytes));
+			if (matcher.find()) {
+				try {
+					return Charset.forName(matcher.group(1));
+				} catch (Exception e) {
+					logger.debug(e.getMessage(), e);
+				}
+			}
+		}
+
+		return (charset == null) ? StandardCharsets.UTF_8 : charset;
 	}
 }

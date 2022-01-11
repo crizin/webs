@@ -224,5 +224,13 @@ class WebsTest extends AbstractTest {
 				.asString();
 
 		assertThat(response).contains("<title>보배드림");
+
+		response = Webs.createSimple()
+				.get("http://www.mediaus.co.kr/news/articleView.html?idxno=235670")
+				.asString();
+
+		System.out.println(response);
+
+		assertThat(response).contains("<title>'윤석열 인터뷰'");
 	}
 }
