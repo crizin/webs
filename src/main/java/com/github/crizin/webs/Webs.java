@@ -22,6 +22,7 @@ import org.apache.hc.client5.http.auth.StandardAuthScheme;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
+import org.apache.hc.client5.http.cookie.CookieSpec;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -74,7 +75,7 @@ public class Webs implements Closeable {
 		this.httpClientContext = HttpClientContext.create();
 		this.httpClientContext.setAttribute(HttpClientContext.COOKIE_STORE, new BasicCookieStore());
 		this.requestConfig = (builder.requestConfig == null) ? RequestConfig.custom()
-				.setCookieSpec(StandardCookieSpec.STRICT)
+				.setCookieSpec(StandardCookieSpec.RELAXED)
 				.setTargetPreferredAuthSchemes(Arrays.asList(StandardAuthScheme.NTLM, StandardAuthScheme.DIGEST))
 				.setProxyPreferredAuthSchemes(Collections.singletonList(StandardAuthScheme.BASIC))
 				.setConnectTimeout(Timeout.ofNanoseconds(builder.connectionTimeout.toNanos()))
