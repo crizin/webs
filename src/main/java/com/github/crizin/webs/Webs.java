@@ -18,11 +18,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.hc.client5.http.auth.StandardAuthScheme;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
-import org.apache.hc.client5.http.cookie.CookieSpec;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -33,6 +34,7 @@ import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.client5.http.ssl.TrustAllStrategy;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.Timeout;
 
@@ -44,6 +46,7 @@ public class Webs implements Closeable {
 	private final RequestConfig requestConfig;
 	private final Browser simulateBrowser;
 	private final boolean disableKeepAlive;
+	private final Set<Integer> acceptCodes;
 
 	private Webs(HttpBuilder builder) {
 		PoolingHttpClientConnectionManager connectionManager;
@@ -84,6 +87,7 @@ public class Webs implements Closeable {
 				.build() : builder.requestConfig;
 		this.simulateBrowser = builder.simulateBrowser;
 		this.disableKeepAlive = builder.disableKeepAlive;
+		this.acceptCodes = builder.acceptCodes;
 	}
 
 	public static HttpBuilder builder() {
@@ -138,6 +142,10 @@ public class Webs implements Closeable {
 		return requestConfig;
 	}
 
+	public boolean isAcceptCode(int statusCode) {
+		return acceptCodes.contains(statusCode);
+	}
+
 	public List<Cookie> getCookies() {
 		return httpClientContext.getCookieStore().getCookies();
 	}
@@ -173,6 +181,7 @@ public class Webs implements Closeable {
 
 		private String baseUrl = "";
 		private String userAgent;
+		private Set<Integer> acceptCodes = Collections.singleton(HttpStatus.SC_OK);
 		private Duration connectionTimeout = Duration.ofSeconds(5);
 		private Duration readTimeout = Duration.ofSeconds(60);
 		private CloseableHttpClient client;
@@ -198,6 +207,11 @@ public class Webs implements Closeable {
 
 		public HttpBuilder setUserAgent(String userAgentString) {
 			this.userAgent = userAgentString;
+			return this;
+		}
+
+		public HttpBuilder acceptCodes(int... codes) {
+			this.acceptCodes = Arrays.stream(codes).boxed().collect(Collectors.toSet());
 			return this;
 		}
 

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.crizin.webs.exception.WebsResponseException;
+import com.github.crizin.webs.request.GetRequestBuilder;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.util.Map;
@@ -252,5 +253,20 @@ class WebsTest extends AbstractTest {
 				.fetch();
 
 		assertDoesNotThrow(response::asString);
+	}
+
+	@Test
+	void testAcceptCode() {
+		GetRequestBuilder request = Webs.createSimple()
+				.get("https://httpbin.org/status/404");
+
+		assertThatThrownBy(request::fetch).isInstanceOf(WebsResponseException.class).hasMessage("404 NOT FOUND");
+
+		request = Webs.builder()
+				.acceptCodes(200, 404)
+				.build()
+				.get("https://httpbin.org/status/404");
+
+		assertDoesNotThrow(request::fetch);
 	}
 }

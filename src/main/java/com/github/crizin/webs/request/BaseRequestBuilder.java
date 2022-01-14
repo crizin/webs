@@ -153,6 +153,9 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 
 		try {
 			CloseableHttpResponse response = webs.getHttpClient().execute(request, webs.getHttpClientContext());
+			if (!webs.isAcceptCode(response.getCode())) {
+				throw new WebsResponseException(String.format("%d %s", response.getCode(), response.getReasonPhrase()));
+			}
 			return new Response(response);
 		} catch (IOException e) {
 			throw new WebsResponseException(e);
