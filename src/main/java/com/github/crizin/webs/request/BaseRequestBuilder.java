@@ -19,6 +19,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -152,11 +153,13 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 		setHeader(request);
 
 		try {
-			CloseableHttpResponse response = webs.getHttpClient().execute(request, webs.getHttpClientContext());
+			HttpClientContext context = HttpClientContext.create();
+			context.setAttribute(HttpClientContext.COOKIE_STORE, webs.getCookieStore());
+			CloseableHttpResponse response = webs.getHttpClient().execute(request, context);
 			if (!webs.isAcceptCode(response.getCode())) {
 				throw new WebsResponseException(String.format("%d %s", response.getCode(), response.getReasonPhrase()));
 			}
-			return new Response(response);
+			return new Response(context, request, response);
 		} catch (IOException e) {
 			throw new WebsResponseException(e);
 		}

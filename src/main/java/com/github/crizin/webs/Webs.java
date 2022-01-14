@@ -25,13 +25,13 @@ import org.apache.hc.client5.http.auth.StandardAuthScheme;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
+import org.apache.hc.client5.http.cookie.CookieStore;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.client5.http.ssl.TrustAllStrategy;
@@ -58,7 +58,7 @@ public class Webs implements Closeable {
 
 	private final String baseUrl;
 	private final CloseableHttpClient httpClient;
-	private final HttpClientContext httpClientContext;
+	private final CookieStore cookieStore = new BasicCookieStore();
 	private final RequestConfig requestConfig;
 	private final Browser simulateBrowser;
 	private final boolean disableKeepAlive;
@@ -91,8 +91,6 @@ public class Webs implements Closeable {
 		} else {
 			this.httpClient = builder.client;
 		}
-		this.httpClientContext = HttpClientContext.create();
-		this.httpClientContext.setAttribute(HttpClientContext.COOKIE_STORE, new BasicCookieStore());
 		this.requestConfig = (builder.requestConfig == null) ? RequestConfig.custom()
 				.setCookieSpec(StandardCookieSpec.RELAXED)
 				.setTargetPreferredAuthSchemes(Arrays.asList(StandardAuthScheme.NTLM, StandardAuthScheme.DIGEST))
@@ -150,10 +148,6 @@ public class Webs implements Closeable {
 		return httpClient;
 	}
 
-	public HttpClientContext getHttpClientContext() {
-		return httpClientContext;
-	}
-
 	public RequestConfig getRequestConfig() {
 		return requestConfig;
 	}
@@ -162,8 +156,12 @@ public class Webs implements Closeable {
 		return acceptCodes.contains(statusCode);
 	}
 
+	public CookieStore getCookieStore() {
+		return cookieStore;
+	}
+
 	public List<Cookie> getCookies() {
-		return httpClientContext.getCookieStore().getCookies();
+		return getCookieStore().getCookies();
 	}
 
 	public Optional<Cookie> getCookie(String name) {

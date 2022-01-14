@@ -6,6 +6,7 @@ import com.github.crizin.webs.exception.WebsException;
 import com.github.crizin.webs.exception.WebsResponseException;
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -15,7 +16,10 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.protocol.RedirectLocations;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
@@ -26,14 +30,40 @@ public class Response implements Closeable {
 	private static final Logger logger = LoggerFactory.getLogger(Response.class);
 	private static final Pattern charsetPattern = Pattern.compile("charset\\s*=\\s*([\\w-]+)", Pattern.CASE_INSENSITIVE);
 
+	private final HttpClientContext context;
+	private final HttpUriRequestBase httpRequest;
 	private final CloseableHttpResponse httpResponse;
 
-	public Response(CloseableHttpResponse httpResponse) {
+	public Response(HttpClientContext context, HttpUriRequestBase httpRequest, CloseableHttpResponse httpResponse) {
+		this.context = context;
+		this.httpRequest = httpRequest;
 		this.httpResponse = httpResponse;
 	}
 
 	public int statusCode() {
 		return httpResponse.getCode();
+	}
+
+	public HttpUriRequestBase getHttpRequest() {
+		return httpRequest;
+	}
+
+	public CloseableHttpResponse getHttpResponse() {
+		return httpResponse;
+	}
+
+	public String getFinalLocation() {
+		RedirectLocations locations = context.getRedirectLocations();
+
+		if (locations.size() == 0) {
+			try {
+				return httpRequest.getUri().toString();
+			} catch (URISyntaxException e) {
+				throw new WebsResponseException(e);
+			}
+		} else {
+			return locations.get(locations.size() - 1).toString();
+		}
 	}
 
 	public Optional<String> getHeader(String name) {

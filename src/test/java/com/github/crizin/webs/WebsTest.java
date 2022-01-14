@@ -269,4 +269,19 @@ class WebsTest extends AbstractTest {
 
 		assertDoesNotThrow(request::fetch);
 	}
+
+	@Test
+	void testRedirect() {
+		Response response = Webs.createSimple()
+				.get("https://www.daum.net/")
+				.fetch();
+
+		assertThat(response.getFinalLocation()).isEqualTo("https://www.daum.net/");
+
+		response = Webs.createSimple()
+				.get("http://daum.net")
+				.fetch();
+
+		assertThat(response.getFinalLocation()).isEqualTo("https://www.daum.net/");
+	}
 }

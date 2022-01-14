@@ -2,6 +2,7 @@ package com.github.crizin.webs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -67,7 +68,7 @@ class WebsPostTest extends AbstractTest {
 				.hasFieldOrPropertyWithValue(complexString, complexString);
 
 		data = webs.post("/post")
-				.jsonPayload(data)
+				.jsonPayload(Collections.singletonMap("a", 1))
 				.fetch()
 				.as(Data.class);
 

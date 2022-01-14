@@ -13,6 +13,7 @@ abstract class AbstractTest {
 	void before() {
 		webs = Webs.builder()
 				.baseUrl("https://httpbin.org")
+				.acceptCodes(200, 401)
 				.setConnectionTimeout(Duration.ofSeconds(1))
 				.setReadTimeout(Duration.ofSeconds(30))
 				.build();

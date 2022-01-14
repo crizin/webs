@@ -35,7 +35,7 @@ public class PostRequestBuilder extends BaseRequestBuilder<PostRequestBuilder> {
 	}
 
 	public PostRequestBuilder jsonPayload(Object object) {
-		return jsonPayload(jsonPayload(WebsUtil.toJson(object)));
+		return jsonPayload(WebsUtil.toJson(object));
 	}
 
 	public PostRequestBuilder jsonPayload(String payload) {
