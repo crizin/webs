@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +40,21 @@ import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.Timeout;
 
 public class Webs implements Closeable {
+
+	private static final Set<Integer> DEFAULT_ACCEPT_CODES = new HashSet<Integer>() {
+		{
+			add(HttpStatus.SC_OK);
+			add(HttpStatus.SC_CREATED);
+			add(HttpStatus.SC_ACCEPTED);
+			add(HttpStatus.SC_NON_AUTHORITATIVE_INFORMATION);
+			add(HttpStatus.SC_NO_CONTENT);
+			add(HttpStatus.SC_RESET_CONTENT);
+			add(HttpStatus.SC_PARTIAL_CONTENT);
+			add(HttpStatus.SC_MULTI_STATUS);
+			add(HttpStatus.SC_ALREADY_REPORTED);
+			add(HttpStatus.SC_IM_USED);
+		}
+	};
 
 	private final String baseUrl;
 	private final CloseableHttpClient httpClient;
@@ -87,7 +103,7 @@ public class Webs implements Closeable {
 				.build() : builder.requestConfig;
 		this.simulateBrowser = builder.simulateBrowser;
 		this.disableKeepAlive = builder.disableKeepAlive;
-		this.acceptCodes = builder.acceptCodes;
+		this.acceptCodes = (builder.acceptCodes == null) ? DEFAULT_ACCEPT_CODES : builder.acceptCodes;
 	}
 
 	public static HttpBuilder builder() {
@@ -181,7 +197,7 @@ public class Webs implements Closeable {
 
 		private String baseUrl = "";
 		private String userAgent;
-		private Set<Integer> acceptCodes = Collections.singleton(HttpStatus.SC_OK);
+		private Set<Integer> acceptCodes;
 		private Duration connectionTimeout = Duration.ofSeconds(5);
 		private Duration readTimeout = Duration.ofSeconds(60);
 		private CloseableHttpClient client;
