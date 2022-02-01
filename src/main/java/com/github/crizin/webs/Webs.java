@@ -37,6 +37,7 @@ import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.client5.http.ssl.TrustAllStrategy;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 public class Webs implements Closeable {
@@ -82,6 +83,7 @@ public class Webs implements Closeable {
 		this.baseUrl = builder.baseUrl;
 		if (builder.client == null) {
 			HttpClientBuilder httpClientsBuilder = HttpClients.custom()
+					.evictIdleConnections(TimeValue.ofSeconds(10))
 					.setConnectionManager(connectionManager)
 					.setUserAgent(builder.userAgent);
 			if (builder.disableContentCompression) {
@@ -93,6 +95,7 @@ public class Webs implements Closeable {
 		}
 		this.requestConfig = (builder.requestConfig == null) ? RequestConfig.custom()
 				.setCookieSpec(StandardCookieSpec.RELAXED)
+				.setExpectContinueEnabled(true)
 				.setTargetPreferredAuthSchemes(Arrays.asList(StandardAuthScheme.NTLM, StandardAuthScheme.DIGEST))
 				.setProxyPreferredAuthSchemes(Collections.singletonList(StandardAuthScheme.BASIC))
 				.setConnectTimeout(Timeout.ofNanoseconds(builder.connectionTimeout.toNanos()))
