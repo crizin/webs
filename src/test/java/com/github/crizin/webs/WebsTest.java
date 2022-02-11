@@ -230,8 +230,6 @@ class WebsTest extends AbstractTest {
 				.get("http://www.mediaus.co.kr/news/articleView.html?idxno=235670")
 				.asString();
 
-		System.out.println(response);
-
 		assertThat(response).contains("<title>'윤석열 인터뷰'");
 	}
 
