@@ -58,14 +58,38 @@ public class Webs implements Closeable {
 	};
 
 	private final String baseUrl;
-	private final CloseableHttpClient httpClient;
 	private final CookieStore cookieStore = new BasicCookieStore();
 	private final RequestConfig requestConfig;
 	private final Browser simulateBrowser;
+	private final String userAgent;
 	private final boolean disableKeepAlive;
+	private final boolean disableAutoReconnect;
+	private final boolean disableContentCompression;
 	private final Set<Integer> acceptCodes;
+	private CloseableHttpClient httpClient;
 
 	private Webs(HttpBuilder builder) {
+		this.baseUrl = builder.baseUrl;
+		this.userAgent = builder.userAgent;
+		this.simulateBrowser = builder.simulateBrowser;
+		this.disableKeepAlive = builder.disableKeepAlive;
+		this.disableAutoReconnect = builder.disableAutoReconnect;
+		this.disableContentCompression = builder.disableContentCompression;
+		this.acceptCodes = (builder.acceptCodes == null) ? DEFAULT_ACCEPT_CODES : builder.acceptCodes;
+		this.requestConfig = (builder.requestConfig == null) ? RequestConfig.custom()
+				.setCookieSpec(StandardCookieSpec.RELAXED)
+				.setExpectContinueEnabled(true)
+				.setTargetPreferredAuthSchemes(Arrays.asList(StandardAuthScheme.NTLM, StandardAuthScheme.DIGEST))
+				.setProxyPreferredAuthSchemes(Collections.singletonList(StandardAuthScheme.BASIC))
+				.setConnectTimeout(Timeout.ofNanoseconds(builder.connectionTimeout.toNanos()))
+				.setConnectionRequestTimeout(Timeout.ofNanoseconds(builder.connectionTimeout.toNanos()))
+				.setResponseTimeout(Timeout.ofNanoseconds(builder.readTimeout.toNanos()))
+				.build() : builder.requestConfig;
+
+		this.httpClient = createHttpClient();
+	}
+
+	private CloseableHttpClient createHttpClient() {
 		PoolingHttpClientConnectionManager connectionManager;
 
 		try {
@@ -80,31 +104,16 @@ public class Webs implements Closeable {
 			throw new WebsException(e);
 		}
 
-		this.baseUrl = builder.baseUrl;
-		if (builder.client == null) {
-			HttpClientBuilder httpClientsBuilder = HttpClients.custom()
-					.evictIdleConnections(TimeValue.ofSeconds(10))
-					.setConnectionManager(connectionManager)
-					.setUserAgent(builder.userAgent);
-			if (builder.disableContentCompression) {
-				httpClientsBuilder.disableContentCompression();
-			}
-			this.httpClient = httpClientsBuilder.build();
-		} else {
-			this.httpClient = builder.client;
+		HttpClientBuilder httpClientsBuilder = HttpClients.custom()
+				.evictIdleConnections(TimeValue.ofSeconds(10))
+				.setConnectionManager(connectionManager)
+				.setUserAgent(userAgent);
+
+		if (disableContentCompression) {
+			httpClientsBuilder.disableContentCompression();
 		}
-		this.requestConfig = (builder.requestConfig == null) ? RequestConfig.custom()
-				.setCookieSpec(StandardCookieSpec.RELAXED)
-				.setExpectContinueEnabled(true)
-				.setTargetPreferredAuthSchemes(Arrays.asList(StandardAuthScheme.NTLM, StandardAuthScheme.DIGEST))
-				.setProxyPreferredAuthSchemes(Collections.singletonList(StandardAuthScheme.BASIC))
-				.setConnectTimeout(Timeout.ofNanoseconds(builder.connectionTimeout.toNanos()))
-				.setConnectionRequestTimeout(Timeout.ofNanoseconds(builder.connectionTimeout.toNanos()))
-				.setResponseTimeout(Timeout.ofNanoseconds(builder.readTimeout.toNanos()))
-				.build() : builder.requestConfig;
-		this.simulateBrowser = builder.simulateBrowser;
-		this.disableKeepAlive = builder.disableKeepAlive;
-		this.acceptCodes = (builder.acceptCodes == null) ? DEFAULT_ACCEPT_CODES : builder.acceptCodes;
+
+		return httpClientsBuilder.build();
 	}
 
 	public static HttpBuilder builder() {
@@ -147,8 +156,18 @@ public class Webs implements Closeable {
 		return baseUrl;
 	}
 
-	public CloseableHttpClient getHttpClient() {
-		return httpClient;
+	public CloseableHttpClient getHttpClient(boolean createNew) {
+		if (!createNew) {
+			return httpClient;
+		}
+
+		try {
+			httpClient.close();
+		} catch (IOException ignored) {
+		}
+
+		this.httpClient = createHttpClient();
+		return this.httpClient;
 	}
 
 	public RequestConfig getRequestConfig() {
@@ -185,6 +204,10 @@ public class Webs implements Closeable {
 		return disableKeepAlive;
 	}
 
+	public boolean isDisableAutoReconnect() {
+		return disableAutoReconnect;
+	}
+
 	@Override
 	public void close() {
 		try {
@@ -201,11 +224,11 @@ public class Webs implements Closeable {
 		private Set<Integer> acceptCodes;
 		private Duration connectionTimeout = Duration.ofSeconds(5);
 		private Duration readTimeout = Duration.ofSeconds(60);
-		private CloseableHttpClient client;
 		private RequestConfig requestConfig;
 		private Browser simulateBrowser;
 		private boolean disableKeepAlive;
 		private boolean disableContentCompression;
+		private boolean disableAutoReconnect;
 
 		public HttpBuilder baseUrl(String baseUrl) {
 			this.baseUrl = baseUrl;
@@ -232,11 +255,6 @@ public class Webs implements Closeable {
 			return this;
 		}
 
-		public HttpBuilder setClient(CloseableHttpClient client) {
-			this.client = client;
-			return this;
-		}
-
 		public HttpBuilder setRequestConfig(RequestConfig requestConfig) {
 			this.requestConfig = requestConfig;
 			return this;
@@ -254,6 +272,11 @@ public class Webs implements Closeable {
 
 		public HttpBuilder disableContentCompression() {
 			this.disableContentCompression = true;
+			return this;
+		}
+
+		public HttpBuilder disableAutoReconnect() {
+			this.disableAutoReconnect = true;
 			return this;
 		}
 

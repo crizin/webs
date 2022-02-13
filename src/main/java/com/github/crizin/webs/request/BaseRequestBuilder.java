@@ -18,8 +18,10 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ConnectionRequestTimeoutException;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -149,17 +151,28 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 	}
 
 	protected Response execute(HttpUriRequestBase request) {
+		return execute(request, false);
+	}
+
+	private Response execute(HttpUriRequestBase request, boolean retrying) {
 		request.setConfig(webs.getRequestConfig());
 		setHeader(request);
+
+		CloseableHttpClient httpClient = webs.getHttpClient(retrying);
 
 		try {
 			HttpClientContext context = HttpClientContext.create();
 			context.setAttribute(HttpClientContext.COOKIE_STORE, webs.getCookieStore());
-			CloseableHttpResponse response = webs.getHttpClient().execute(request, context);
+			CloseableHttpResponse response = httpClient.execute(request, context);
 			if (!webs.isAcceptCode(response.getCode())) {
 				throw new WebsResponseException(String.format("%d %s", response.getCode(), response.getReasonPhrase()));
 			}
 			return new Response(context, request, response);
+		} catch (ConnectionRequestTimeoutException e) {
+			if (retrying || webs.isDisableAutoReconnect()) {
+				throw new WebsResponseException(e);
+			}
+			return execute(request, true);
 		} catch (IOException e) {
 			throw new WebsResponseException(e);
 		}
