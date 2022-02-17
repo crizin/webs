@@ -234,6 +234,18 @@ class WebsTest extends AbstractTest {
 	}
 
 	@Test
+	void testEucKr() {
+		Response a = Webs.createSimple()
+				.get("https://www.ppomppu.co.kr/zboard/view.php?id=freeboard&no=7757457")
+				.fetch();
+		String response = Webs.createSimple()
+				.get("https://www.ppomppu.co.kr/zboard/view.php?id=freeboard&no=7757457")
+				.asString();
+
+		assertThat(response).contains("머싰었습니다");
+	}
+
+	@Test
 	void testAbnormalSsl() {
 		Response response = Webs.createSimple()
 				.get("https://intdev.yu.ac.kr/intdev/index.do")

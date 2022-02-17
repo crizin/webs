@@ -168,6 +168,10 @@ public class Response implements Closeable {
 			}
 		}
 
+		if (charset != null && charset.name().equals("EUC-KR")) {
+			charset = Charset.forName("MS949");
+		}
+
 		return (charset == null) ? StandardCharsets.UTF_8 : charset;
 	}
 }
