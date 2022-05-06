@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class Response implements Closeable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Response.class);
-	private static final Pattern charsetPattern = Pattern.compile("charset\\s*=\\s*([\\w-]+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern charsetPattern = Pattern.compile("charset\\s*=[\\s\"']*([\\w-]+)", Pattern.CASE_INSENSITIVE);
 
 	private final HttpClientContext context;
 	private final HttpUriRequestBase httpRequest;

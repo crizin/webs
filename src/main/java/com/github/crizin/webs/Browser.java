@@ -6,11 +6,11 @@ import java.util.Map;
 public enum Browser {
 	CHROME(new String[][]{
 			{"Cache-Control", "max-age=0"},
-			{"Sec-Ch-Ua", "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"96\", \"Google Chrome\";v=\"96\""},
+			{"Sec-Ch-Ua", "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"100\", \"Google Chrome\";v=\"100\""},
 			{"Sec-Ch-Ua-Mobile", "?0"},
 			{"Sec-Ch-Ua-Platform", "\"Windows\""},
 			{"Upgrade-Insecure-Requests", "1"},
-			{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"},
+			{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.3"},
 			{"Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"},
 			{"Sec-Fetch-Site", "same-origin"},
 			{"Sec-Fetch-Mode", "navigate"},
