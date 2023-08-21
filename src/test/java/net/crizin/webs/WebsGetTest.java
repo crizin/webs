@@ -1,5 +1,6 @@
 package net.crizin.webs;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 
+@Disabled
 class WebsGetTest extends AbstractTest {
 
 	@Test

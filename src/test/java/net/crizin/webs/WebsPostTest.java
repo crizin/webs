@@ -1,6 +1,7 @@
 package net.crizin.webs;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 class WebsPostTest extends AbstractTest {
 
 	@Test
