@@ -77,7 +77,7 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 
 	@SuppressWarnings("unchecked")
 	public T bind(String name, Object value) {
-		url = url.replaceAll(String.format("\\{%s}", Pattern.quote(name)), defaultString(value));
+		url = url.replaceAll("\\{%s}".formatted(Pattern.quote(name)), defaultString(value));
 		return (T) this;
 	}
 
@@ -90,7 +90,7 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 
 	@SuppressWarnings("unchecked")
 	public T basicAuth(String userName, String password) {
-		String value = String.format("Basic %s", Base64.encodeBase64String(String.format("%s:%s", userName, password).getBytes(StandardCharsets.UTF_8)));
+		String value = "Basic %s".formatted(Base64.encodeBase64String("%s:%s".formatted(userName, password).getBytes(StandardCharsets.UTF_8)));
 		header(HttpHeaders.AUTHORIZATION, value);
 		return (T) this;
 	}
@@ -112,7 +112,7 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 
 		if (queryString != null) {
 			try {
-				builder = new URIBuilder(String.format("%s?%s", url, queryString));
+				builder = new URIBuilder("%s?%s".formatted(url, queryString));
 			} catch (URISyntaxException e) {
 				throw new WebsRequestException("Invalid queryString", e);
 			}
@@ -165,7 +165,7 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 			webs.getPreHook().accept(context, request);
 			return httpClient.execute(request, context, response -> {
 				if (!webs.isAcceptCode(response.getCode())) {
-					throw new WebsResponseException(String.format("%d %s", response.getCode(), response.getReasonPhrase()));
+					throw new WebsResponseException("%d %s".formatted(response.getCode(), response.getReasonPhrase()));
 				}
 				var responseHolder = new Response(context, request, response);
 				webs.getPostHook().accept(responseHolder);
