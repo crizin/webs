@@ -1,7 +1,13 @@
 package net.crizin.webs;
 
 import net.crizin.webs.exception.WebsException;
-import net.crizin.webs.request.*;
+import net.crizin.webs.request.DeleteRequestBuilder;
+import net.crizin.webs.request.GetRequestBuilder;
+import net.crizin.webs.request.HeadRequestBuilder;
+import net.crizin.webs.request.OptionsRequestBuilder;
+import net.crizin.webs.request.PatchRequestBuilder;
+import net.crizin.webs.request.PostRequestBuilder;
+import net.crizin.webs.request.PutRequestBuilder;
 import org.apache.hc.client5.http.auth.StandardAuthScheme;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.config.ConnectionConfig;
@@ -31,7 +37,12 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
