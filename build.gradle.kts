@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("org.sonarqube") version "4.2.1.3168"
 }
 
 group = "net.crizin"
@@ -7,6 +8,14 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "crizin_webs")
+        property("sonar.organization", "crizin")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
 }
 
 dependencies {
