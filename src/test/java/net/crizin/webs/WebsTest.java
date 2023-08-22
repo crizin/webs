@@ -123,7 +123,7 @@ class WebsTest extends AbstractTest {
 	}
 
 	@Test
-	void testCookie() {
+	void testCookie() throws MalformedURLException {
 		try (var webs = Webs.createSimple()) {
 			var data = webs.get(getBaseUrl() + "/cookies/set")
 				.queryParam("a", 1)
@@ -144,13 +144,7 @@ class WebsTest extends AbstractTest {
 			assertThat(data).extracting(Data::cookies).asInstanceOf(InstanceOfAssertFactories.MAP)
 				.doesNotContainKey("new");
 
-			String host;
-
-			try {
-				host = new URL(getBaseUrl()).getHost();
-			} catch (MalformedURLException e) {
-				throw new RuntimeException(e);
-			}
+			String host = new URL(getBaseUrl()).getHost();
 
 			webs.setCookie(host, "test1", "10");
 			webs.setCookie("somewhere.com", "test2", "10");
