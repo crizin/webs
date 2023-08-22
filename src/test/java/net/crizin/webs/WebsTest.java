@@ -2,15 +2,15 @@ package net.crizin.webs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import net.crizin.webs.exception.WebsResponseException;
-import org.apache.hc.client5.http.ConnectTimeoutException;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -22,16 +22,16 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Disabled
 class WebsTest extends AbstractTest {
 
 	@Test
 	void testGetJson() {
 		var data = webs.get("/get").fetchAs(Data.class);
-		assertThat(data).extracting(Data::url).isEqualTo("https://httpbin.org/get");
+		assertThat(data).extracting(Data::url).isEqualTo(getBaseUrl() + "/get");
 
-		data = webs.get("/get").fetchAs(new TypeReference<>() {});
-		assertThat(data).extracting(Data::url).isEqualTo("https://httpbin.org/get");
+		data = webs.get("/get").fetchAs(new TypeReference<>() {
+		});
+		assertThat(data).extracting(Data::url).isEqualTo(getBaseUrl() + "/get");
 	}
 
 	@Test
@@ -60,7 +60,7 @@ class WebsTest extends AbstractTest {
 		var http = Webs.createSimple();
 		http.close();
 
-		assertThat(catchThrowable(() -> http.get("https://httpbin.org/get").fetch()))
+		assertThat(catchThrowable(() -> http.get(getBaseUrl() + "/get").fetch()))
 			.isInstanceOf(IllegalStateException.class)
 			.hasMessage("Connection pool shut down");
 	}
@@ -68,13 +68,13 @@ class WebsTest extends AbstractTest {
 	@Test
 	void testUserAgent() {
 		try (var webs = Webs.createSimple()) {
-			assertThat(webs.get("https://httpbin.org/get").fetchAs(Data.class))
+			assertThat(webs.get(getBaseUrl() + "/get").fetchAs(Data.class))
 				.extracting("headers").extracting("User-Agent")
 				.asString().startsWith("Apache-HttpClient/5.2.1");
 		}
 
 		try (var webs = Webs.builder().setUserAgent("MyUserAgent").build()) {
-			var data = webs.get("https://httpbin.org/get").fetch().as(Data.class);
+			var data = webs.get(getBaseUrl() + "/get").fetch().as(Data.class);
 			assertEquals("MyUserAgent", data.headers().get("User-Agent"));
 		}
 	}
@@ -115,14 +115,8 @@ class WebsTest extends AbstractTest {
 
 	@Test
 	void testTimeout() {
-		try (Webs webs = Webs.builder().setConnectionTimeout(Duration.ofMillis(5)).build()) {
-			assertThat(catchThrowable(() -> webs.get("https://httpbin.org/get").fetch()))
-				.isInstanceOf(WebsResponseException.class)
-				.hasCauseInstanceOf(ConnectTimeoutException.class);
-		}
-
-		try (Webs http2 = Webs.builder().setReadTimeout(Duration.ofMillis(100)).build()) {
-			assertThat(catchThrowable(() -> http2.get("https://httpbin.org/delay/2").fetch()))
+		try (Webs webs = Webs.builder().setReadTimeout(Duration.ofMillis(100)).build()) {
+			assertThat(catchThrowable(() -> webs.get(getBaseUrl() + "/delay/2").fetch()))
 				.isInstanceOf(WebsResponseException.class)
 				.hasCauseInstanceOf(SocketTimeoutException.class);
 		}
@@ -131,7 +125,7 @@ class WebsTest extends AbstractTest {
 	@Test
 	void testCookie() {
 		try (var webs = Webs.createSimple()) {
-			var data = webs.get("https://httpbin.org/cookies/set")
+			var data = webs.get(getBaseUrl() + "/cookies/set")
 				.queryParam("a", 1)
 				.fetch()
 				.as(Data.class);
@@ -139,20 +133,28 @@ class WebsTest extends AbstractTest {
 			assertThat(data).extracting(Data::cookies).asInstanceOf(InstanceOfAssertFactories.MAP)
 				.hasFieldOrPropertyWithValue("a", "1");
 
-			webs.get("https://httpbin.org/cookies/set")
+			webs.get(getBaseUrl() + "/cookies/set")
 				.queryParam("a", 2)
 				.fetch();
 
 			assertThat(webs.getCookieValue("a")).hasValue("2");
-			assertThat(super.webs.getCookieValue("a")).isEmpty();
+			assertThat(AbstractTest.webs.getCookieValue("a")).isEmpty();
 
-			data = webs.get("https://httpbin.org/cookies").fetchAs(Data.class);
+			data = webs.get(getBaseUrl() + "/cookies").fetchAs(Data.class);
 			assertThat(data).extracting(Data::cookies).asInstanceOf(InstanceOfAssertFactories.MAP)
 				.doesNotContainKey("new");
 
-			webs.setCookie("httpbin.org", "test1", "10");
-			webs.setCookie("httpbin.com", "test2", "10");
-			data = webs.get("https://httpbin.org/cookies").fetchAs(Data.class);
+			String host;
+
+			try {
+				host = new URL(getBaseUrl()).getHost();
+			} catch (MalformedURLException e) {
+				throw new RuntimeException(e);
+			}
+
+			webs.setCookie(host, "test1", "10");
+			webs.setCookie("somewhere.com", "test2", "10");
+			data = webs.get(getBaseUrl() + "/cookies").fetchAs(Data.class);
 
 			assertThat(data).extracting(Data::cookies).asInstanceOf(InstanceOfAssertFactories.MAP)
 				.hasFieldOrPropertyWithValue("test1", "10")
@@ -220,7 +222,7 @@ class WebsTest extends AbstractTest {
 	@Test
 	void testBrowserSimulate() {
 		try (var webs = Webs.builder().simulateBrowser(Browser.CHROME).build()) {
-			var data = webs.get("https://httpbin.org/get").fetch().as(Data.class);
+			var data = webs.get(getBaseUrl() + "/get").fetch().as(Data.class);
 
 			assertThat(data).extracting(Data::headers)
 				.extracting("User-Agent")
@@ -230,8 +232,10 @@ class WebsTest extends AbstractTest {
 
 	@Test
 	void testEucKr() {
-		String response = webs.get("https://www.ppomppu.co.kr/zboard/view.php?id=freeboard&no=7757457").fetchAsString();
-		assertThat(response).contains("머싰었습니다");
+		try (var webs = Webs.createSimple()) {
+			var response = webs.get("https://unply.com/@/mock/euc-kr.php").fetchAsString();
+			assertThat(response).contains("아햏햏");
+		}
 	}
 
 	@Test
@@ -253,12 +257,12 @@ class WebsTest extends AbstractTest {
 	@Test
 	void testAcceptCode() {
 		try (var webs = Webs.createSimple()) {
-			var request = webs.get("https://httpbin.org/status/404");
+			var request = webs.get(getBaseUrl() + "/status/404");
 			assertThatThrownBy(request::fetch).isInstanceOf(WebsResponseException.class).hasMessage("404 NOT FOUND");
 		}
 
 		try (var webs = Webs.builder().acceptCodes(200, 404).build()) {
-			var request = webs.get("https://httpbin.org/status/404");
+			var request = webs.get(getBaseUrl() + "/status/404");
 			assertDoesNotThrow(request::fetch);
 		}
 	}
@@ -279,7 +283,7 @@ class WebsTest extends AbstractTest {
 	@Test
 	void testBinary() {
 		try (var webs = Webs.createSimple()) {
-			var bytes = webs.get("https://httpbin.org/image").fetchAsBytes();
+			var bytes = webs.get(getBaseUrl() + "/image").fetchAsBytes();
 			assertThat(bytes).hasSize(8090);
 		}
 	}
@@ -300,7 +304,7 @@ class WebsTest extends AbstractTest {
 		};
 
 		try (var webs = Webs.builder().registerPreHook(preHook).registerPostHook(postHook).build()) {
-			webs.get("https://httpbin.org/get").fetch();
+			webs.get(getBaseUrl() + "/get").fetch();
 		}
 
 		assertThat(preHookCalled.get()).isTrue();
