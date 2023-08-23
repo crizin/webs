@@ -1,5 +1,8 @@
 package net.crizin.webs;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.httpcomponents.hc5.MicrometerHttpRequestExecutor;
+import io.micrometer.core.instrument.binder.httpcomponents.hc5.PoolingHttpClientConnectionManagerMetricsBinder;
 import net.crizin.webs.exception.WebsException;
 import net.crizin.webs.request.DeleteRequestBuilder;
 import net.crizin.webs.request.GetRequestBuilder;
@@ -33,6 +36,8 @@ import org.apache.hc.core5.util.Timeout;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -78,8 +83,10 @@ public class Webs implements Closeable {
 	private final BiConsumer<HttpClientContext, HttpUriRequestBase> preHook;
 	private final Consumer<Response> postHook;
 	private CloseableHttpClient httpClient;
+	private WebsBuilder builder;
 
 	private Webs(WebsBuilder builder) {
+		this.builder = builder;
 		this.baseUrl = builder.baseUrl;
 		this.userAgent = builder.userAgent;
 		this.simulateBrowser = builder.simulateBrowser;
@@ -123,10 +130,27 @@ public class Webs implements Closeable {
 			throw new WebsException(e);
 		}
 
+		if (builder.meterRegistry != null) {
+			new PoolingHttpClientConnectionManagerMetricsBinder(connectionManager, "webs-pool").bindTo(builder.meterRegistry);
+		}
+
 		HttpClientBuilder httpClientsBuilder = HttpClients.custom()
 			.evictIdleConnections(TimeValue.ofSeconds(10))
 			.setConnectionManager(connectionManager)
 			.setUserAgent(userAgent);
+
+		if (builder.meterRegistry != null) {
+			httpClientsBuilder
+				.setRequestExecutor(MicrometerHttpRequestExecutor.builder(builder.meterRegistry).uriMapper(r -> {
+					URI uri;
+					try {
+						uri = r.getUri();
+					} catch (URISyntaxException e) {
+						return "UNKNOWN";
+					}
+					return "%s://%s".formatted(uri.getScheme(), uri.getHost());
+				}).build());
+		}
 
 		if (disableContentCompression) {
 			httpClientsBuilder.disableContentCompression();
@@ -264,6 +288,7 @@ public class Webs implements Closeable {
 		private boolean disableKeepAlive;
 		private boolean disableContentCompression;
 		private boolean disableAutoReconnect;
+		private MeterRegistry meterRegistry;
 		private BiConsumer<HttpClientContext, HttpUriRequestBase> preHook = (context, request) -> {};
 		private Consumer<Response> postHook = response -> {};
 
@@ -324,6 +349,11 @@ public class Webs implements Closeable {
 
 		public WebsBuilder registerPostHook(Consumer<Response> postHook) {
 			this.postHook = postHook;
+			return this;
+		}
+
+		public WebsBuilder registerMetrics(MeterRegistry registry) {
+			this.meterRegistry = registry;
 			return this;
 		}
 
