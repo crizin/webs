@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 public class Response {
 
-	private static final Logger logger = LoggerFactory.getLogger(Response.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Response.class);
 
 	private final HttpClientContext context;
 	private final HttpUriRequestBase httpRequest;
@@ -176,7 +176,7 @@ public class Response {
 						try {
 							return Charset.forName(charset);
 						} catch (Exception e) {
-							logger.debug(e.getMessage(), e);
+							LOGGER.debug(e.getMessage(), e);
 							return null;
 						}
 					})
