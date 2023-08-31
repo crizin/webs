@@ -11,8 +11,8 @@ import java.util.Objects;
 
 public class ParamsBuilder {
 
-	private boolean encodeKey;
-	private boolean omitNullValue;
+	private boolean encodeKey = true;
+	private boolean omitNullValue = false;
 	private final List<String> names = new ArrayList<>();
 	private final List<Object> values = new ArrayList<>();
 
@@ -55,9 +55,9 @@ public class ParamsBuilder {
 			}
 
 			if (encodeKey) {
-				sb.append(names.get(i));
-			} else {
 				sb.append(URLEncoder.encode(names.get(i), StandardCharsets.UTF_8));
+			} else {
+				sb.append(names.get(i));
 			}
 
 			sb.append('=');
