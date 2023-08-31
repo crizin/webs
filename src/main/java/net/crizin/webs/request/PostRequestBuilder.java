@@ -1,5 +1,6 @@
 package net.crizin.webs.request;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.crizin.webs.Response;
 import net.crizin.webs.Webs;
 import net.crizin.webs.WebsUtil;
@@ -34,8 +35,8 @@ public class PostRequestBuilder extends BaseRequestBuilder<PostRequestBuilder> {
 		return this;
 	}
 
-	public PostRequestBuilder jsonPayload(Object object) {
-		return jsonPayload(WebsUtil.toJson(object));
+	public PostRequestBuilder jsonPayload(ObjectMapper objectMapper, Object object) {
+		return jsonPayload(WebsUtil.toJson(objectMapper, object));
 	}
 
 	public PostRequestBuilder jsonPayload(String payload) {

@@ -1,6 +1,8 @@
 package net.crizin.webs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import net.crizin.webs.exception.WebsResponseException;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
@@ -303,5 +305,15 @@ class WebsTest extends AbstractTest {
 
 		assertThat(preHookCalled.get()).isTrue();
 		assertThat(postHookCalled.get()).isTrue();
+	}
+
+	@Test
+	void testObjectMapper() {
+		try (var webs = Webs.builder().objectMapper(new ObjectMapper()).build()) {
+			var request = webs.get(getBaseUrl() + "/get?a=1&b=2");
+			assertThatThrownBy(() -> request.fetchAs(Data.class))
+				.isInstanceOf(WebsResponseException.class)
+				.hasCauseInstanceOf(UnrecognizedPropertyException.class);
+		}
 	}
 }

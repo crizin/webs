@@ -2,6 +2,7 @@ package net.crizin.webs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.crizin.webs.exception.WebsResponseException;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
@@ -32,11 +33,13 @@ public class Response {
 	private final HttpClientContext context;
 	private final HttpUriRequestBase httpRequest;
 	private final ResponseHolder responseHolder;
+	private final ObjectMapper objectMapper;
 
-	public Response(HttpClientContext context, HttpUriRequestBase httpRequest, ClassicHttpResponse httpResponse) throws IOException {
+	public Response(HttpClientContext context, HttpUriRequestBase httpRequest, ClassicHttpResponse httpResponse, ObjectMapper objectMapper) throws IOException {
 		this.context = context;
 		this.httpRequest = httpRequest;
 		this.responseHolder = ResponseHolder.from(httpResponse);
+		this.objectMapper = objectMapper;
 	}
 
 	public int statusCode() {
@@ -88,15 +91,15 @@ public class Response {
 	}
 
 	public <T> T as(Class<T> type) {
-		return WebsUtil.fromJson(asString(), type);
+		return WebsUtil.fromJson(objectMapper, asString(), type);
 	}
 
 	public <T> T as(TypeReference<T> type) {
-		return WebsUtil.fromJson(asString(), type);
+		return WebsUtil.fromJson(objectMapper, asString(), type);
 	}
 
 	public JsonNode asJson() {
-		return WebsUtil.fromJson(asString());
+		return WebsUtil.fromJson(objectMapper, asString());
 	}
 
 	public Map<String, Object> asMap() {

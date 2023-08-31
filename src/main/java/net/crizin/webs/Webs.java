@@ -1,5 +1,12 @@
 package net.crizin.webs;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.MicrometerHttpRequestExecutor;
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.PoolingHttpClientConnectionManagerMetricsBinder;
@@ -42,6 +49,8 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -83,7 +92,8 @@ public class Webs implements Closeable {
 	private final BiConsumer<HttpClientContext, HttpUriRequestBase> preHook;
 	private final Consumer<Response> postHook;
 	private CloseableHttpClient httpClient;
-	private WebsBuilder builder;
+	private final WebsBuilder builder;
+	private final ObjectMapper objectMapper;
 
 	private Webs(WebsBuilder builder) {
 		this.builder = builder;
@@ -108,6 +118,7 @@ public class Webs implements Closeable {
 			.build() : builder.requestConfig;
 
 		this.httpClient = createHttpClient();
+		this.objectMapper = builder.objectMapper == null ? createObjectMapper() : builder.objectMapper;
 	}
 
 	private CloseableHttpClient createHttpClient() {
@@ -267,6 +278,10 @@ public class Webs implements Closeable {
 		return disableAutoReconnect;
 	}
 
+	public ObjectMapper getObjectMapper() {
+		return objectMapper;
+	}
+
 	@Override
 	public void close() {
 		try {
@@ -274,6 +289,19 @@ public class Webs implements Closeable {
 		} catch (IOException e) {
 			throw new WebsException(e);
 		}
+	}
+
+	private ObjectMapper createObjectMapper() {
+		JavaTimeModule javaTimeModule = new JavaTimeModule();
+		javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME));
+		javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ISO_DATE_TIME));
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.registerModule(javaTimeModule);
+		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		return objectMapper;
 	}
 
 	public static class WebsBuilder {
@@ -291,6 +319,7 @@ public class Webs implements Closeable {
 		private MeterRegistry meterRegistry;
 		private BiConsumer<HttpClientContext, HttpUriRequestBase> preHook = (context, request) -> {};
 		private Consumer<Response> postHook = response -> {};
+		private ObjectMapper objectMapper;
 
 		public WebsBuilder baseUrl(String baseUrl) {
 			this.baseUrl = baseUrl;
@@ -354,6 +383,11 @@ public class Webs implements Closeable {
 
 		public WebsBuilder registerMetrics(MeterRegistry registry) {
 			this.meterRegistry = registry;
+			return this;
+		}
+
+		public WebsBuilder objectMapper(ObjectMapper objectMapper) {
+			this.objectMapper = objectMapper;
 			return this;
 		}
 

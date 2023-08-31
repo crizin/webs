@@ -67,7 +67,7 @@ class WebsPostTest extends AbstractTest {
 			.hasFieldOrPropertyWithValue(COMPLEX_STRING, COMPLEX_STRING);
 
 		data = webs.post("/post")
-			.jsonPayload(Collections.singletonMap("a", 1))
+			.jsonPayload(webs.getObjectMapper(), Collections.singletonMap("a", 1))
 			.fetch()
 			.as(Data.class);
 

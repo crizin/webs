@@ -167,7 +167,7 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 				if (!webs.isAcceptCode(response.getCode())) {
 					throw new WebsResponseException("%d %s".formatted(response.getCode(), response.getReasonPhrase()));
 				}
-				var responseHolder = new Response(context, request, response);
+				var responseHolder = new Response(context, request, response, webs.getObjectMapper());
 				webs.getPostHook().accept(responseHolder);
 				return responseHolder;
 			});
