@@ -42,7 +42,7 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 
 	protected BaseRequestBuilder(Webs webs, String url) {
 		this.webs = webs;
-		this.url = combineUrl(webs.getBaseUrl(), url);
+		this.url = combineUrl(webs.getConfig().getBaseUrl(), url);
 	}
 
 	public abstract Response fetch();
@@ -154,7 +154,8 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 	}
 
 	private Response execute(HttpUriRequestBase request, boolean retrying) {
-		request.setConfig(webs.getRequestConfig());
+		request.setConfig(webs.getConfig().getRequestConfig());
+
 		setHeader(request);
 
 		var httpClient = webs.getHttpClient(retrying);
@@ -162,17 +163,21 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 		try {
 			HttpClientContext context = HttpClientContext.create();
 			context.setAttribute(HttpClientContext.COOKIE_STORE, webs.getCookieStore());
-			webs.getPreHook().accept(context, request);
+			if (webs.getConfig().getPreHook() != null) {
+				webs.getConfig().getPreHook().accept(context, request);
+			}
 			return httpClient.execute(request, context, response -> {
-				if (!webs.isAcceptCode(response.getCode())) {
+				if (!webs.getConfig().getAcceptCodes().contains(response.getCode())) {
 					throw new WebsResponseException("%d %s".formatted(response.getCode(), response.getReasonPhrase()));
 				}
-				var responseHolder = new Response(context, request, response, webs.getObjectMapper());
-				webs.getPostHook().accept(responseHolder);
+				var responseHolder = new Response(context, request, response, webs.getConfig().getObjectMapper());
+				if (webs.getConfig().getPostHook() != null) {
+					webs.getConfig().getPostHook().accept(responseHolder);
+				}
 				return responseHolder;
 			});
 		} catch (ConnectionRequestTimeoutException e) {
-			if (retrying || webs.isDisableAutoReconnect()) {
+			if (retrying || webs.getConfig().isDisableAutoReconnect()) {
 				throw new WebsResponseException(e);
 			}
 			return execute(request, true);
@@ -194,12 +199,13 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 			request.addHeader(headerNames.get(i), (headerValues.get(i) == null) ? "" : String.valueOf(headerValues.get(i)));
 		}
 
-		if (webs.getSimulateBrowser() != null) {
-			webs.getSimulateBrowser().getHeaders().forEach((name, value) -> {
+		if (webs.getConfig().getSimulateBrowser() != null) {
+			webs.getConfig().getSimulateBrowser().getHeaders().forEach((name, value) -> {
 				if (!request.containsHeader(name)) {
 					request.setHeader(name, value);
 				}
 			});
+
 			if (!request.containsHeader(HttpHeaders.REFERER)) {
 				try {
 					request.setHeader(HttpHeaders.REFERER, request.getUri().toString());
@@ -209,7 +215,7 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 			}
 		}
 
-		if (webs.isDisableKeepAlive()) {
+		if (webs.getConfig().isDisableKeepAlive()) {
 			request.setHeader("Connection", "close");
 		}
 	}

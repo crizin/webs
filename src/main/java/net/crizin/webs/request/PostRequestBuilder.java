@@ -1,10 +1,10 @@
 package net.crizin.webs.request;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import net.crizin.webs.Response;
 import net.crizin.webs.Webs;
-import net.crizin.webs.WebsUtil;
 import net.crizin.webs.exception.WebsRequestException;
+import net.crizin.webs.exception.WebsResponseException;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ContentType;
 
@@ -35,10 +35,6 @@ public class PostRequestBuilder extends BaseRequestBuilder<PostRequestBuilder> {
 		return this;
 	}
 
-	public PostRequestBuilder jsonPayload(ObjectMapper objectMapper, Object object) {
-		return jsonPayload(WebsUtil.toJson(objectMapper, object));
-	}
-
 	public PostRequestBuilder jsonPayload(String payload) {
 		if (paramsBuilder.hasValue()) {
 			throw new WebsRequestException("Request parameter already set");
@@ -46,6 +42,14 @@ public class PostRequestBuilder extends BaseRequestBuilder<PostRequestBuilder> {
 		this.payload = payload;
 		this.contentType = ContentType.APPLICATION_JSON;
 		return this;
+	}
+
+	public PostRequestBuilder jsonPayload(Object object) {
+		try {
+			return jsonPayload(webs.getConfig().getObjectMapper().writeValueAsString(object));
+		} catch (JsonProcessingException e) {
+			throw new WebsResponseException(e);
+		}
 	}
 
 	public Response fetch() {

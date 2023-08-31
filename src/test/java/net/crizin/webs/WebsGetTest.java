@@ -2,6 +2,8 @@ package net.crizin.webs;
 
 import org.junit.jupiter.api.Test;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +56,7 @@ class WebsGetTest extends AbstractTest {
 	@Test
 	void testGetWithQueryString() {
 		var data = webs.get("/get")
-			.queryParamString("a=1&b=2&c=3&c=4&" + WebsUtil.encodeUrl(COMPLEX_STRING) + "=" + WebsUtil.encodeUrl(COMPLEX_STRING))
+			.queryParamString("a=1&b=2&c=3&c=4&" + URLEncoder.encode(COMPLEX_STRING, StandardCharsets.UTF_8) + "=" + URLEncoder.encode(COMPLEX_STRING, StandardCharsets.UTF_8))
 			.fetchAs(Data.class);
 
 		assertThat(data).extracting(Data::args).extracting("a").isEqualTo("1");

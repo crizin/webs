@@ -1,5 +1,6 @@
 package net.crizin.webs;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -91,15 +92,27 @@ public class Response {
 	}
 
 	public <T> T as(Class<T> type) {
-		return WebsUtil.fromJson(objectMapper, asString(), type);
+		try {
+			return objectMapper.readValue(asString(), type);
+		} catch (IOException e) {
+			throw new WebsResponseException(e);
+		}
 	}
 
 	public <T> T as(TypeReference<T> type) {
-		return WebsUtil.fromJson(objectMapper, asString(), type);
+		try {
+			return objectMapper.readValue(asString(), type);
+		} catch (IOException e) {
+			throw new WebsResponseException(e);
+		}
 	}
 
 	public JsonNode asJson() {
-		return WebsUtil.fromJson(objectMapper, asString());
+		try {
+			return objectMapper.readTree(asString());
+		} catch (JsonProcessingException e) {
+			throw new WebsResponseException(e);
+		}
 	}
 
 	public Map<String, Object> asMap() {
@@ -113,16 +126,16 @@ public class Response {
 	public record ResponseHolder(
 		int code,
 		Header[] headers,
-		byte[] body,
-		Charset charset
+		Charset charset,
+		byte[] body
 	) {
 
-		private static final Pattern charsetPattern = Pattern.compile("charset\\s*=[\\s\"']*([\\w-]+)", Pattern.CASE_INSENSITIVE);
+		private static final Pattern CHARSET_PATTERN = Pattern.compile("charset\\s*=[\\s\"']*([\\w-]+)", Pattern.CASE_INSENSITIVE);
 
 		public static ResponseHolder from(ClassicHttpResponse response) throws IOException {
 			var entity = response.getEntity();
 			byte[] body = (entity == null) ? null : EntityUtils.toByteArray(response.getEntity());
-			return new ResponseHolder(response.getCode(), response.getHeaders(), body, getCharset(response, body));
+			return new ResponseHolder(response.getCode(), response.getHeaders(), getCharset(response, body), body);
 		}
 
 		@Override
@@ -134,7 +147,7 @@ public class Response {
 				return false;
 			}
 			ResponseHolder that = (ResponseHolder) o;
-			return code == that.code && Arrays.equals(headers, that.headers) && Arrays.equals(body, that.body) && Objects.equals(charset, that.charset);
+			return code == that.code && Arrays.equals(headers, that.headers) && Objects.equals(charset, that.charset) && Arrays.equals(body, that.body);
 		}
 
 		@Override
@@ -147,18 +160,24 @@ public class Response {
 
 		@Override
 		public String toString() {
-			return "ResponseHolder{" +
-				   "code=" + code +
-				   ", headers=" + Arrays.toString(headers) +
-				   ", body=" + Arrays.toString(body) +
-				   ", charset=" + charset +
-				   '}';
+			return "ResponseHolder[code=%d, headers=%s, charset=%s, body=%s]"
+				.formatted(code, Arrays.toString(headers), charset, Arrays.toString(body));
 		}
 
 		private static Charset getCharset(ClassicHttpResponse httpResponse, byte[] bytes) {
 			return Optional.ofNullable(httpResponse.getFirstHeader("Content-Type"))
 				.map(NameValuePair::getValue)
-				.map(charsetPattern::matcher)
+				.flatMap(ResponseHolder::detectCharset)
+				.orElseGet(() -> Optional.ofNullable(bytes)
+					.map(String::new)
+					.flatMap(ResponseHolder::detectCharset)
+					.orElse(StandardCharsets.UTF_8)
+				);
+		}
+
+		private static Optional<Charset> detectCharset(String content) {
+			return Optional.ofNullable(content)
+				.map(CHARSET_PATTERN::matcher)
 				.filter(Matcher::find)
 				.map(matcher -> matcher.group(1))
 				.map(charset -> charset.equalsIgnoreCase("EUC-KR") ? "MS949" : charset)
@@ -166,25 +185,10 @@ public class Response {
 					try {
 						return Charset.forName(charset);
 					} catch (Exception e) {
+						LOGGER.debug(e.getMessage(), e);
 						return null;
 					}
-				})
-				.orElseGet(() -> Optional.ofNullable(bytes)
-					.map(String::new)
-					.map(charsetPattern::matcher)
-					.filter(Matcher::find)
-					.map(matcher -> matcher.group(1))
-					.map(charset -> charset.equalsIgnoreCase("EUC-KR") ? "MS949" : charset)
-					.map(charset -> {
-						try {
-							return Charset.forName(charset);
-						} catch (Exception e) {
-							LOGGER.debug(e.getMessage(), e);
-							return null;
-						}
-					})
-					.orElse(StandardCharsets.UTF_8)
-				);
+				});
 		}
 	}
 }

@@ -51,7 +51,7 @@ class WebsTest extends AbstractTest {
 		assertThat(builder.buildAsString()).isEqualTo("a%5B%5D=1&a%5B%5D=2");
 
 		builder = new ParamsBuilder()
-			.dontEncodeKey()
+			.encodeKey(false)
 			.add("a[]", 1)
 			.add("a[]", 2);
 		assertThat(builder.buildAsString()).isEqualTo("a[]=1&a[]=2");

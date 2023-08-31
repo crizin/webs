@@ -3,14 +3,16 @@ package net.crizin.webs;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class ParamsBuilder {
 
+	private boolean encodeKey;
 	private boolean omitNullValue;
-	private boolean dontEncodeKey;
 	private final List<String> names = new ArrayList<>();
 	private final List<Object> values = new ArrayList<>();
 
@@ -20,13 +22,13 @@ public class ParamsBuilder {
 		return this;
 	}
 
-	public ParamsBuilder omitNullValue() {
-		omitNullValue = true;
+	public ParamsBuilder encodeKey(boolean value) {
+		encodeKey = value;
 		return this;
 	}
 
-	public ParamsBuilder dontEncodeKey() {
-		dontEncodeKey = true;
+	public ParamsBuilder omitNullValue() {
+		omitNullValue = true;
 		return this;
 	}
 
@@ -52,16 +54,16 @@ public class ParamsBuilder {
 				sb.append('&');
 			}
 
-			if (dontEncodeKey) {
+			if (encodeKey) {
 				sb.append(names.get(i));
 			} else {
-				sb.append(WebsUtil.encodeUrl(names.get(i)));
+				sb.append(URLEncoder.encode(names.get(i), StandardCharsets.UTF_8));
 			}
 
 			sb.append('=');
 
 			if (value != null) {
-				sb.append(WebsUtil.encodeUrl(String.valueOf(value)));
+				sb.append(URLEncoder.encode(String.valueOf(value), StandardCharsets.UTF_8));
 			}
 		}
 
