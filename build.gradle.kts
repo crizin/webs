@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("jacoco")
     id("org.sonarqube") version "4.2.1.3168"
 }
 
@@ -8,6 +9,10 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
+}
+
+jacoco {
+    toolVersion = "0.8.10"
 }
 
 sonar {
@@ -30,4 +35,10 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required = true
+    }
 }
