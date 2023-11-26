@@ -25,12 +25,12 @@ sonar {
 
 dependencies {
     implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2")
-    implementation("io.micrometer:micrometer-core:1.11.3")
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0")
+    implementation("io.micrometer:micrometer-core:1.12.0")
+    testImplementation(platform("org.junit:junit-bom:5.10.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core:3.24.2")
-    testImplementation("org.testcontainers:testcontainers:1.18.3")
+    testImplementation("org.testcontainers:testcontainers:1.19.3")
 }
 
 tasks.test {
