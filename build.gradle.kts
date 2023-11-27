@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("jacoco")
-    id("org.sonarqube") version "4.2.1.3168"
+    id("org.sonarqube") version "4.4.1.3373"
 }
 
 group = "net.crizin"
@@ -28,7 +28,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0")
     implementation("io.micrometer:micrometer-core:1.12.0")
     testImplementation(platform("org.junit:junit-bom:5.10.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.testcontainers:testcontainers:1.19.3")
 }

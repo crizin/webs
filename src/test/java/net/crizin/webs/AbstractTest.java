@@ -13,6 +13,7 @@ abstract class AbstractTest {
 	protected static Webs webs;
 
 	@BeforeAll
+	@SuppressWarnings("resource")
 	public static void before() {
 		httpBin = new GenericContainer<>("kennethreitz/httpbin")
 			.withExposedPorts(80)

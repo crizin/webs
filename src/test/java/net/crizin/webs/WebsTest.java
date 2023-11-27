@@ -10,9 +10,9 @@ import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
-import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -125,7 +125,7 @@ class WebsTest extends AbstractTest {
 	}
 
 	@Test
-	void testCookie() throws MalformedURLException {
+	void testCookie() throws URISyntaxException {
 		try (var webs = Webs.createSimple()) {
 			var data = webs.get(getBaseUrl() + "/cookies/set")
 				.queryParam("a", 1)
@@ -146,7 +146,7 @@ class WebsTest extends AbstractTest {
 			assertThat(data).extracting(Data::cookies).asInstanceOf(InstanceOfAssertFactories.MAP)
 				.doesNotContainKey("new");
 
-			String host = new URL(getBaseUrl()).getHost();
+			String host = new URI(getBaseUrl()).getHost();
 
 			webs.setCookie(host, "test1", "10");
 			webs.setCookie("somewhere.com", "test2", "10");
