@@ -84,6 +84,7 @@ public class WebsConfig {
 			.setProxyPreferredAuthSchemes(Collections.singletonList(StandardAuthScheme.BASIC))
 			.setConnectionRequestTimeout(connectionTimeout)
 			.setResponseTimeout(readTimeout)
+			.setMaxRedirects(5)
 			.build();
 	}
 
