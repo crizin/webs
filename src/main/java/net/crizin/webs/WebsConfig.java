@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.ObservationRegistry;
 import org.apache.hc.client5.http.auth.StandardAuthScheme;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -18,7 +18,6 @@ import org.apache.hc.core5.util.Timeout;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -66,7 +65,7 @@ public class WebsConfig {
 	BiConsumer<HttpClientContext, HttpUriRequestBase> preHook;
 	Consumer<Response> postHook;
 	ObjectMapper objectMapper;
-	MeterRegistry meterRegistry;
+	ObservationRegistry observationRegistry;
 
 	public String getBaseUrl() {
 		return baseUrl;
@@ -80,7 +79,7 @@ public class WebsConfig {
 		return RequestConfig.custom()
 			.setCookieSpec(StandardCookieSpec.RELAXED)
 			.setExpectContinueEnabled(true)
-			.setTargetPreferredAuthSchemes(Arrays.asList(StandardAuthScheme.NTLM, StandardAuthScheme.DIGEST))
+			.setTargetPreferredAuthSchemes(Collections.singletonList(StandardAuthScheme.DIGEST))
 			.setProxyPreferredAuthSchemes(Collections.singletonList(StandardAuthScheme.BASIC))
 			.setConnectionRequestTimeout(connectionTimeout)
 			.setResponseTimeout(readTimeout)
@@ -132,7 +131,7 @@ public class WebsConfig {
 		return (objectMapper == null) ? DEFAULT_OBJECT_MAPPER : objectMapper;
 	}
 
-	public MeterRegistry getMeterRegistry() {
-		return meterRegistry;
+	public ObservationRegistry getObservationRegistry() {
+		return observationRegistry;
 	}
 }

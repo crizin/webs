@@ -1,7 +1,7 @@
 package net.crizin.webs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.ObservationRegistry;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
@@ -77,8 +77,8 @@ public class WebsBuilder {
 		return this;
 	}
 
-	public WebsBuilder registerMetrics(MeterRegistry registry) {
-		config.meterRegistry = registry;
+	public WebsBuilder registerObservation(ObservationRegistry observationRegistry) {
+		config.observationRegistry = observationRegistry;
 		return this;
 	}
 

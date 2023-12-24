@@ -24,9 +24,9 @@ sonar {
 }
 
 dependencies {
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.3")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0")
-    implementation("io.micrometer:micrometer-core:1.12.0")
+    implementation("io.micrometer:micrometer-core:1.12.1")
     testImplementation(platform("org.junit:junit-bom:5.10.1"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testImplementation("org.assertj:assertj-core:3.24.2")

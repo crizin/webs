@@ -72,7 +72,7 @@ class WebsTest extends AbstractTest {
 		try (var webs = Webs.createSimple()) {
 			assertThat(webs.get(getBaseUrl() + "/get").fetchAs(Data.class))
 				.extracting("headers").extracting("User-Agent")
-				.asString().startsWith("Apache-HttpClient/5.2.1");
+				.asString().startsWith("Apache-HttpClient/5.");
 		}
 
 		try (var webs = Webs.builder().setUserAgent("MyUserAgent").build()) {

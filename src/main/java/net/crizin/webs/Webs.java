@@ -1,6 +1,7 @@
 package net.crizin.webs;
 
-import io.micrometer.core.instrument.binder.httpcomponents.hc5.MicrometerHttpRequestExecutor;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.binder.httpcomponents.hc5.ObservationExecChainHandler;
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.PoolingHttpClientConnectionManagerMetricsBinder;
 import net.crizin.webs.exception.WebsException;
 import net.crizin.webs.request.DeleteRequestBuilder;
@@ -28,8 +29,6 @@ import org.apache.hc.core5.util.TimeValue;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -167,19 +166,12 @@ public class Webs implements Closeable {
 			httpClientsBuilder.disableContentCompression();
 		}
 
-		if (config.meterRegistry != null) {
-			new PoolingHttpClientConnectionManagerMetricsBinder(connectionManager, "webs-pool").bindTo(config.meterRegistry);
+		if (config.observationRegistry != null) {
+			new PoolingHttpClientConnectionManagerMetricsBinder(connectionManager, "webs-pool")
+				.bindTo(Metrics.globalRegistry);
 
 			httpClientsBuilder
-				.setRequestExecutor(MicrometerHttpRequestExecutor.builder(config.meterRegistry).uriMapper(r -> {
-					URI uri;
-					try {
-						uri = r.getUri();
-					} catch (URISyntaxException e) {
-						return "UNKNOWN";
-					}
-					return "%s://%s".formatted(uri.getScheme(), uri.getHost());
-				}).build());
+				.addExecInterceptorLast("micrometer", new ObservationExecChainHandler(config.observationRegistry));
 		}
 
 		return httpClientsBuilder.build();
