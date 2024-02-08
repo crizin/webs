@@ -37,7 +37,7 @@ class WebsPostTest extends AbstractTest {
 			.hasFieldOrPropertyWithValue("a", "1")
 			.hasFieldOrPropertyWithValue("b", "2")
 			.hasFieldOrPropertyWithValue(COMPLEX_STRING, COMPLEX_STRING)
-			.extracting("c").asList().containsExactly("3", "3");
+			.extracting("c").asInstanceOf(InstanceOfAssertFactories.LIST).containsExactly("3", "3");
 
 		assertThat(data).extracting(Data::form)
 			.hasFieldOrPropertyWithValue("f1", "1")

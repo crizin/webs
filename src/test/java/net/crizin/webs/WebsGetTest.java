@@ -1,5 +1,6 @@
 package net.crizin.webs;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 import java.net.URLEncoder;
@@ -34,7 +35,7 @@ class WebsGetTest extends AbstractTest {
 		assertThat(data).extracting(Data::args).extracting("a").isEqualTo("1");
 		assertThat(data).extracting(Data::args).extracting("b").isEqualTo("2");
 		assertThat(data).extracting(Data::args).extracting(COMPLEX_STRING).isEqualTo(COMPLEX_STRING);
-		assertThat(data).extracting(Data::args).extracting("c").asList().containsExactly("3", "4", "3");
+		assertThat(data).extracting(Data::args).extracting("c").asInstanceOf(InstanceOfAssertFactories.LIST).containsExactly("3", "4", "3");
 	}
 
 	@Test
@@ -61,7 +62,7 @@ class WebsGetTest extends AbstractTest {
 
 		assertThat(data).extracting(Data::args).extracting("a").isEqualTo("1");
 		assertThat(data).extracting(Data::args).extracting("b").isEqualTo("2");
-		assertThat(data).extracting(Data::args).extracting("c").asList().containsExactly("3", "4");
+		assertThat(data).extracting(Data::args).extracting("c").asInstanceOf(InstanceOfAssertFactories.LIST).containsExactly("3", "4");
 		assertThat(data).extracting(Data::args).extracting(COMPLEX_STRING).isEqualTo(COMPLEX_STRING);
 	}
 
