@@ -40,7 +40,7 @@ public enum Browser {
 
 		for (String header : headers) {
 			var parts = header.split(":", 2);
-			this.headers.put(parts[0].trim(), parts[1].trim());
+			this.headers.put(parts[0].strip(), parts[1].strip());
 		}
 	}
 
