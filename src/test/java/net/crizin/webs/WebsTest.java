@@ -294,7 +294,7 @@ class WebsTest extends AbstractTest {
 			assertThat(request).extracting(BasicHttpRequest::getRequestUri).isEqualTo("/get");
 		};
 
-		Consumer<Response> postHook = (response) -> {
+		Consumer<Response> postHook = response -> {
 			postHookCalled.set(true);
 			assertThat(response).extracting(Response::statusCode).isEqualTo(200);
 		};
