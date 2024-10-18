@@ -162,7 +162,7 @@ public abstract class BaseRequestBuilder<T extends BaseRequestBuilder<?>> {
 
 		try {
 			HttpClientContext context = HttpClientContext.create();
-			context.setAttribute(HttpClientContext.COOKIE_STORE, webs.getCookieStore());
+			context.setCookieStore(webs.getCookieStore());
 			if (webs.getConfig().getPreHook() != null) {
 				webs.getConfig().getPreHook().accept(context, request);
 			}
