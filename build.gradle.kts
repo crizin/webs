@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("jacoco")
-    id("org.sonarqube") version "5.1.0.4882"
+    id("org.sonarqube") version "6.0.1.5171"
 }
 
 group = "net.crizin"
@@ -24,13 +24,13 @@ sonar {
 }
 
 dependencies {
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.4")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.0")
-    implementation("io.micrometer:micrometer-core:1.13.6")
-    testImplementation(platform("org.junit:junit-bom:5.11.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.4.1")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
+    implementation("io.micrometer:micrometer-core:1.14.2")
+    testImplementation(platform("org.junit:junit-bom:5.11.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
     testImplementation("org.assertj:assertj-core:3.26.3")
-    testImplementation("org.testcontainers:testcontainers:1.20.2")
+    testImplementation("org.testcontainers:testcontainers:1.20.4")
 }
 
 tasks.test {
