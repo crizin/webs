@@ -3,6 +3,7 @@ package net.crizin.webs;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("java:S1192")
 public enum Browser {
 	CHROME(
 		"accept-language: ko,en-US;q=0.9,en;q=0.8",
@@ -61,7 +62,7 @@ public enum Browser {
 	private final Map<String, String> headers;
 
 	Browser(String... headers) {
-		this.headers = new HashMap<>(headers.length);
+		this.headers = HashMap.newHashMap(headers.length);
 
 		for (String header : headers) {
 			var parts = header.split(":", 2);
