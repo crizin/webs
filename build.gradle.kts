@@ -10,13 +10,13 @@ repositories {
 }
 
 dependencies {
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.5.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.0")
-    implementation("io.micrometer:micrometer-core:1.15.4")
-	testImplementation("org.junit.platform:junit-platform-launcher:6.0.0")
-	testImplementation("org.junit.jupiter:junit-jupiter:6.0.0")
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.6")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1")
+    implementation("io.micrometer:micrometer-core:1.16.1")
+	testImplementation("org.junit.platform:junit-platform-launcher:6.0.1")
+	testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
 	testImplementation("org.assertj:assertj-core:3.27.6")
-    testImplementation("org.testcontainers:testcontainers:1.21.3")
+    testImplementation("org.testcontainers:testcontainers:2.0.3")
 }
 
 tasks.test {
